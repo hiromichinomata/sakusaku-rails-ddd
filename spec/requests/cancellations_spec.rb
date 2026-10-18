@@ -23,8 +23,11 @@ RSpec.describe "キャンセル", type: :request do
     end
 
     it "返金は、支払った金額で決済サービスに依頼する" do
-      expect(Billing::PaymentGateway).to receive(:refund)
-        .with(charge_id: reservation.payment.charge_id, amount: 6000)
+      gateway = Billing::FakePaymentGateway.new
+      allow(Billing).to receive(:gateway).and_return(gateway)
+      expect(gateway).to receive(:refund)
+        .with(charge_id: reservation.payment.charge_id, amount: Money.new(6000),
+              idempotency_key: "refund-reservation-#{reservation.id}")
         .and_call_original
 
       travel_to Time.zone.local(2026, 11, 10, 12, 0) do
