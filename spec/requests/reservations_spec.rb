@@ -23,5 +23,17 @@ RSpec.describe "予約", type: :request do
       expect(response.body).to include("予約しました。")
       expect(response.body).to include("残り 18席")
     end
+
+    it "入力に誤りがあれば、予約せずにエラーを表示する" do
+      params = { reservation: { name: "", email: "hatsuka.example.com", quantity: 0 } }
+
+      expect { post event_reservations_path(event), params: params }
+        .not_to change(Reservation, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("お名前を入力してください")
+      expect(response.body).to include("メールアドレスは不正な値です")
+      expect(response.body).to include("人数は0より大きい値にしてください")
+    end
   end
 end
