@@ -34,6 +34,30 @@ RSpec.describe "予約", type: :request do
       expect(response.body).to include("人数は4以下の値にしてください")
     end
 
+    it "同じメールアドレスで、同じイベントを二重に予約できない" do
+      create(:reservation, event: event, email: "hatsuka@example.com")
+
+      expect { reserve(quantity: 1, email: "hatsuka@example.com") }
+        .not_to change(Reservation, :count)
+
+      expect(response.body).to include("メールアドレスでは、すでに予約があります")
+    end
+
+    it "キャンセルした予約があっても、もう一度予約できる" do
+      create(:reservation, event: event, email: "hatsuka@example.com", status: "canceled")
+
+      expect { reserve(quantity: 1, email: "hatsuka@example.com") }
+        .to change(Reservation, :count).by(1)
+    end
+
+    it "開始時刻を過ぎたイベントは予約できない" do
+      event.update!(starts_at: 1.hour.ago)
+
+      expect { reserve(quantity: 1) }.not_to change(Reservation, :count)
+
+      expect(response.body).to include("このイベントの受付は終了しました")
+    end
+
     context "残りの席が2席のとき" do
       before do
         create_list(:reservation, 4, event: event, quantity: 4)

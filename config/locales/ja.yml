@@ -19,5 +19,9 @@ ja:
       models:
         reservation:
           attributes:
+            base:
+              reservation_closed: "このイベントの受付は終了しました"
+            email:
+              already_reserved: "では、すでに予約があります"
             quantity:
               exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
