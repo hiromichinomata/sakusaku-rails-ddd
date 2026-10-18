@@ -20,6 +20,9 @@
 7. Active Record のモデルは、コアドメインでは永続化のための入れ物として使う
 8. 入力の形（空・形式・範囲）はフォームオブジェクト（`app/forms`）で、業務のルールはドメインで確かめる
 9. ドメインのエラーと HTTP のステータスの対応は、コントローラ（`DomainErrorResponses`）だけが持つ
+10. ほかのコンテキストのテーブルには書き込まない。決済の記録は `Billing::ChargeReservation` を通す
+11. Active Record のモデルどうしの関連付けは、同じコンテキストの中だけにする（`Payment` と `Reservation` はIDでつなぐ）
+12. 保存の入れ物（Active Record）には、業務の判断をするコールバックを書かない
 
 ## やらないこと
 
