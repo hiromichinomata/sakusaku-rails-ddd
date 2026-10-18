@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   def index
-    @events = Event.order(:starts_at)
+    @events = Event.includes(:ticket_inventory).order(:starts_at)
   end
 
   def show
