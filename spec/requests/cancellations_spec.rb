@@ -13,7 +13,7 @@ RSpec.describe "キャンセル", type: :request do
   describe "PATCH /reservations/:id/cancel" do
     it "開催3日前より前なら、キャンセルして全額返金する" do
       travel_to Time.zone.local(2026, 11, 10, 12, 0) do
-        patch cancel_reservation_path(reservation)
+        perform_enqueued_jobs { patch cancel_reservation_path(reservation) }
       end
 
       expect(reservation.reload).to be_canceled
@@ -28,7 +28,7 @@ RSpec.describe "キャンセル", type: :request do
         .and_call_original
 
       travel_to Time.zone.local(2026, 11, 10, 12, 0) do
-        patch cancel_reservation_path(reservation)
+        perform_enqueued_jobs { patch cancel_reservation_path(reservation) }
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.describe "キャンセル", type: :request do
         get reservation_path(reservation)
         announced_refund = response.body.include?("全額を返金します")
 
-        patch cancel_reservation_path(reservation)
+        perform_enqueued_jobs { patch cancel_reservation_path(reservation) }
 
         expect(reservation.reload.payment.refunded?).to eq(announced_refund)
       end
