@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Billing::RefundPaymentJob do
   let(:reservation) { create(:reservation, quantity: 2, status: "canceled") }
-  let!(:payment) { Payment.create!(reservation: reservation, amount: 3000, charge_id: "ch_test") }
+  let!(:payment) { Payment.create!(reservation_id: reservation.id, amount: 3000, charge_id: "ch_test") }
   let(:gateway) { Billing::FakePaymentGateway.new }
 
   before { allow(Billing).to receive(:gateway).and_return(gateway) }

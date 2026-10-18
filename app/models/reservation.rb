@@ -1,6 +1,5 @@
 class Reservation < ApplicationRecord
   belongs_to :event
-  has_one :payment, dependent: :destroy
 
   enum :status, {
     pending: "pending",

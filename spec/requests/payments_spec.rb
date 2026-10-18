@@ -11,7 +11,7 @@ RSpec.describe "お支払い", type: :request do
       expect(delivered_subjects).to eq([ "【うめチケット】予約が確定しました：梅酒づくりワークショップ" ])
 
       expect(reservation.reload).to be_confirmed
-      expect(reservation.payment.amount).to eq(3000)
+      expect(Payment.find_by(reservation_id: reservation.id).amount).to eq(3000)
       expect(response).to redirect_to(reservation_path(reservation))
     end
 
@@ -38,7 +38,7 @@ RSpec.describe "お支払い", type: :request do
     it "支払いのボタンを2回押しても、受け取るのは1回だけ" do
       2.times { post reservation_payment_path(reservation), params: { token: "tok_visa" } }
 
-      expect(Payment.where(reservation: reservation).count).to eq(1)
+      expect(Payment.where(reservation_id: reservation.id).count).to eq(1)
       follow_redirect!
       expect(response.body).to include("お支払いはすでに完了しています。")
     end
@@ -49,7 +49,7 @@ RSpec.describe "お支払い", type: :request do
       post reservation_payment_path(reservation), params: { token: "tok_visa" }
 
       expect(reservation.reload).to be_expired
-      expect(reservation.payment).to be_nil
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_nil
     end
   end
 end

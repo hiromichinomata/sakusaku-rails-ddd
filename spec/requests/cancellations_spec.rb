@@ -17,7 +17,7 @@ RSpec.describe "キャンセル", type: :request do
       end
 
       expect(reservation.reload).to be_canceled
-      expect(reservation.payment).to be_refunded
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_refunded
       follow_redirect!
       expect(response.body).to include("キャンセルしました。6,000円を返金します。")
     end
@@ -28,7 +28,7 @@ RSpec.describe "キャンセル", type: :request do
       end
 
       expect(reservation.reload).to be_canceled
-      expect(reservation.payment).to be_paid
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_paid
     end
 
     it "キャンセルすると、残席に席が戻る" do
@@ -58,7 +58,7 @@ RSpec.describe "キャンセル", type: :request do
 
         perform_enqueued_jobs { patch cancel_reservation_path(reservation) }
 
-        expect(reservation.reload.payment.refunded?).to eq(announced_refund)
+        expect(Payment.find_by(reservation_id: reservation.id).refunded?).to eq(announced_refund)
       end
     end
   end

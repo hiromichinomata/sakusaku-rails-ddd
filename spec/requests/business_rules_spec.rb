@@ -58,13 +58,13 @@ RSpec.describe "業務ルールの境界", type: :request do
     it "ちょうど72時間前のキャンセルは、全額返金する" do
       travel_to(starts_at - 72.hours) { perform_enqueued_jobs { patch cancel_reservation_path(reservation) } }
 
-      expect(reservation.reload.payment).to be_refunded
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_refunded
     end
 
     it "72時間前を1分過ぎたキャンセルは、返金しない" do
       travel_to(starts_at - 72.hours + 1.minute) { perform_enqueued_jobs { patch cancel_reservation_path(reservation) } }
 
-      expect(reservation.reload.payment).to be_paid
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_paid
     end
   end
 
@@ -76,7 +76,7 @@ RSpec.describe "業務ルールの境界", type: :request do
       pay(reservation)
 
       expect(reservation.reload).to be_canceled
-      expect(reservation.payment).to be_nil
+      expect(Payment.find_by(reservation_id: reservation.id)).to be_nil
     end
   end
 end
