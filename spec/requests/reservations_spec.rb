@@ -69,10 +69,8 @@ RSpec.describe "予約", type: :request do
     end
 
     context "残りの席が2席のとき" do
-      before do
-        create_list(:reservation, 4, event: event, quantity: 4)
-        create(:reservation, event: event, quantity: 2)
-      end
+      # 席の数は残席（ticket_inventories）が持っている
+      before { event.ticket_inventory.update!(reserved_count: 18) }
 
       it "2人なら予約できる" do
         expect { reserve(quantity: 2) }.to change(Reservation, :count).by(1)

@@ -41,6 +41,16 @@ RSpec.describe "キャンセル", type: :request do
       expect(reservation.payment).to be_paid
     end
 
+    it "キャンセルすると、残席に席が戻る" do
+      event.ticket_inventory.update!(reserved_count: 4)
+
+      travel_to Time.zone.local(2026, 11, 10, 12, 0) do
+        patch cancel_reservation_path(reservation)
+      end
+
+      expect(Ticketing::InventoryRepository.new.find(event.id).remaining_seats).to eq(4)
+    end
+
     it "キャンセルすると、その席にほかの人が予約できる" do
       travel_to Time.zone.local(2026, 11, 10, 12, 0) do
         patch cancel_reservation_path(reservation)

@@ -4,7 +4,7 @@ RSpec.describe Event do
   describe "定員の変更" do
     let(:event) { create(:event, capacity: 20) }
 
-    before { create(:reservation, event: event, quantity: 4) }
+    before { event.ticket_inventory.update!(reserved_count: 4) }
 
     it "予約済みの人数より少なくはできない" do
       event.capacity = 3
