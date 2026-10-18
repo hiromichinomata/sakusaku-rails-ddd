@@ -14,7 +14,7 @@ RSpec.describe "お支払い", type: :request do
       expect(response).to redirect_to(reservation_path(reservation))
     end
 
-    it "カードが使えなければ、予約はお支払い待ちのまま" do
+    it "カードが使えなければ、仮予約のまま" do
       post reservation_payment_path(reservation), params: { token: "tok_declined" }
 
       expect(reservation.reload).to be_pending
