@@ -67,3 +67,8 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+group :test do
+  # Stub HTTP requests to external services [https://github.com/bblimke/webmock]
+  gem "webmock", "~> 3.34"
+end
