@@ -57,6 +57,16 @@ RSpec.describe "イベント", type: :request do
       expect(inventory.reserved_count).to eq(0)
     end
 
+    it "残席を作れなければ、イベントも登録しない" do
+      repository = instance_double(Ticketing::InventoryRepository)
+      allow(repository).to receive(:add).and_raise(ActiveRecord::StatementInvalid, "残席の保存に失敗")
+      allow(Ticketing::InventoryRepository).to receive(:new).and_return(repository)
+
+      expect { post events_path, params: valid_params }.to raise_error(ActiveRecord::StatementInvalid)
+
+      expect(Event.count).to eq(0)
+    end
+
     it "入力に誤りがあれば、登録せずにエラーを表示する" do
       invalid_params = { event: valid_params[:event].merge(title: "", capacity: 0) }
 
