@@ -17,6 +17,10 @@ class Reservation < ApplicationRecord
     Money.new(price) * quantity
   end
 
+  def payment_deadline
+    Ticketing::Reservation.payment_deadline_for(created_at)
+  end
+
   private
 
   def copy_price_from_event

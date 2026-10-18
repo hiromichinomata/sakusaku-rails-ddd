@@ -1,6 +1,8 @@
 class ReservationsController < ApplicationController
   def show
     @reservation = Reservation.find(params[:id])
+    deadline = Ticketing::SalesInfoReader.new.find(@reservation.event_id).cancellation_deadline
+    @refundable = @reservation.confirmed? && deadline.refundable_at?(Time.current)
   end
 
   def create
@@ -17,15 +19,13 @@ class ReservationsController < ApplicationController
 
   def cancel
     @reservation = Reservation.find(params[:id])
-    payment = @reservation.payment
-    refund = payment.present? && @reservation.event.starts_at - 3.days > Time.current
+    result = Ticketing::CancelReservation.new.call(reservation_id: @reservation.id)
 
-    Ticketing::CancelReservation.new.call(reservation_id: @reservation.id)
-
-    if refund
-      refund_id = Billing::PaymentGateway.refund(charge_id: payment.charge_id, amount: payment.amount)
+    if result.refund_amount
+      payment = @reservation.payment
+      refund_id = Billing::PaymentGateway.refund(charge_id: payment.charge_id, amount: result.refund_amount.yen)
       payment.update!(status: :refunded, refund_id: refund_id)
-      message = "キャンセルしました。#{Money.new(payment.amount)}を返金します。"
+      message = "キャンセルしました。#{result.refund_amount}を返金します。"
     else
       message = "キャンセルしました。"
     end

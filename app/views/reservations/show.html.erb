@@ -17,7 +17,7 @@
 
 <% if @reservation.pending? %>
   <h2>お支払い</h2>
-  <p><%= @reservation.created_at.since(15.minutes).strftime("%H:%M") %> までにお支払いください。</p>
+  <p><%= @reservation.payment_deadline.strftime("%H:%M") %> までにお支払いください。</p>
 
   <%= form_with url: reservation_payment_path(@reservation) do |form| %>
     <p>
@@ -30,7 +30,7 @@
 
 <% if @reservation.pending? || @reservation.confirmed? %>
   <h2>キャンセル</h2>
-  <% if @reservation.confirmed? && @reservation.event.starts_at >= 3.days.from_now %>
+  <% if @refundable %>
     <p>今キャンセルすると、お支払いの全額を返金します。</p>
   <% elsif @reservation.confirmed? %>
     <p>開催3日前を過ぎたため、キャンセルしても返金はありません。</p>
