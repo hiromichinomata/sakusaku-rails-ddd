@@ -1,0 +1,29 @@
+<h1>予約の内容</h1>
+
+<dl>
+  <dt>イベント</dt>
+  <dd><%= link_to @reservation.event.title, event_path(@reservation.event) %></dd>
+  <dt>日時</dt>
+  <dd><%= @reservation.event.starts_at.strftime("%Y年%-m月%-d日 %H:%M") %></dd>
+  <dt>お名前</dt>
+  <dd><%= @reservation.name %></dd>
+  <dt>人数</dt>
+  <dd><%= @reservation.quantity %>人</dd>
+  <dt>金額</dt>
+  <dd><%= number_with_delimiter(@reservation.total_price) %>円</dd>
+  <dt>状態</dt>
+  <dd><%= t(@reservation.status, scope: "reservation_statuses") %></dd>
+</dl>
+
+<% if @reservation.pending? %>
+  <h2>お支払い</h2>
+  <p><%= @reservation.created_at.since(15.minutes).strftime("%H:%M") %> までにお支払いください。</p>
+
+  <%= form_with url: reservation_payment_path(@reservation) do |form| %>
+    <p>
+      <%= form.label :token, "カード（テスト用）" %>
+      <%= form.select :token, [["成功するカード", "tok_visa"], ["使えないカード", "tok_declined"]] %>
+    </p>
+    <%= form.submit "支払う" %>
+  <% end %>
+<% end %>

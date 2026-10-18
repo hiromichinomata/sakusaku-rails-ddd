@@ -1,0 +1,7 @@
+<%= @reservation.name %> 様
+
+「<%= @reservation.event.title %>」を <%= @reservation.quantity %>人で仮予約しました。
+<%= @reservation.created_at.since(15.minutes).strftime("%H:%M") %> までにお支払いください。期限を過ぎると、予約は取り消されます。
+
+お支払い金額: <%= number_with_delimiter(@reservation.total_price) %>円
+お支払いページ: <%= reservation_url(@reservation) %>

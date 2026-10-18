@@ -15,4 +15,8 @@ Rails.application.routes.draw do
   resources :events, only: %i[index show new create] do
     resources :reservations, only: %i[create]
   end
+
+  resources :reservations, only: %i[show] do
+    resource :payment, only: %i[create]
+  end
 end

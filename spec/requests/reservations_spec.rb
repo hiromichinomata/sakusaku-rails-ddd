@@ -9,13 +9,23 @@ RSpec.describe "予約", type: :request do
   end
 
   describe "POST /events/:event_id/reservations" do
-    it "予約を作成して、イベントの詳細画面へ戻る" do
+    it "仮予約を作成して、お支払いのお願いをメールで送る" do
       expect { reserve(quantity: 2) }.to change(Reservation, :count).by(1)
+        .and have_enqueued_mail(ReservationMailer, :payment_request)
 
-      expect(response).to redirect_to(event_path(event))
+      reservation = Reservation.last
+      expect(reservation).to be_pending
+      expect(response).to redirect_to(reservation_path(reservation))
       follow_redirect!
-      expect(response.body).to include("予約しました。")
-      expect(response.body).to include("残り 18席")
+      expect(response.body).to include("仮予約しました。15分以内にお支払いください。")
+    end
+
+    it "無料のイベントは、その場で予約が確定する" do
+      event.update!(price: 0)
+
+      expect { reserve(quantity: 2) }.not_to have_enqueued_mail(ReservationMailer, :payment_request)
+
+      expect(Reservation.last).to be_confirmed
     end
 
     it "入力に誤りがあれば、予約せずにエラーを表示する" do

@@ -1,0 +1,7 @@
+<%= @reservation.name %> 様
+
+「<%= @reservation.event.title %>」の予約が確定しました。
+
+日時: <%= @reservation.event.starts_at.strftime("%Y年%-m月%-d日 %H:%M") %>
+会場: <%= @reservation.event.venue %>
+人数: <%= @reservation.quantity %>人
