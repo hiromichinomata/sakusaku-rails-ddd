@@ -14,12 +14,12 @@ class PaymentsController < ApplicationController
     end
 
     amount = @reservation.total_price
-    charge_id = PaymentGateway.charge(amount: amount, token: params[:token])
+    charge_id = Billing::PaymentGateway.charge(amount: amount, token: params[:token])
     @reservation.create_payment!(amount: amount, charge_id: charge_id)
     @reservation.update!(status: :confirmed)
 
     redirect_to @reservation, notice: "お支払いが完了し、予約が確定しました。"
-  rescue PaymentGateway::CardDeclined => e
+  rescue Billing::PaymentGateway::CardDeclined => e
     redirect_to @reservation, alert: e.message
   end
 end

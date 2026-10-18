@@ -23,7 +23,7 @@ RSpec.describe "キャンセル", type: :request do
     end
 
     it "返金は、支払った金額で決済サービスに依頼する" do
-      expect(PaymentGateway).to receive(:refund)
+      expect(Billing::PaymentGateway).to receive(:refund)
         .with(charge_id: reservation.payment.charge_id, amount: 6000)
         .and_call_original
 

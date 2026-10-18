@@ -25,7 +25,7 @@ class ReservationsController < ApplicationController
 
     payment = @reservation.payment
     if payment.present? && @reservation.event.starts_at - 3.days > Time.current
-      refund_id = PaymentGateway.refund(charge_id: payment.charge_id, amount: payment.amount)
+      refund_id = Billing::PaymentGateway.refund(charge_id: payment.charge_id, amount: payment.amount)
       payment.update!(status: :refunded, refund_id: refund_id)
       message = "キャンセルしました。#{ActiveSupport::NumberHelper.number_to_delimited(payment.amount)}円を返金します。"
     else
