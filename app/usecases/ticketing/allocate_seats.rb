@@ -1,5 +1,5 @@
 module Ticketing
-  # 抽選の当選やキャンセル待ちの案内で、申込者のために席を押さえて仮予約を作る。
+  # 先着の申込・抽選の当選・キャンセル待ちの案内で、申込者のために席を押さえて予約を作る。
   # 呼び出す側のトランザクションの中で、ロックした残席を渡して使う
   class AllocateSeats
     def initialize(reservations: ReservationRepository.new)

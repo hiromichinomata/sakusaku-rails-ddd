@@ -4,9 +4,9 @@ module Ticketing
     def initialize(inventories: InventoryRepository.new, reservations: ReservationRepository.new,
                    sales_infos: SalesInfoReader.new)
       @inventories = inventories
-      @reservations = reservations
       @sales_infos = sales_infos
       @double_booking = DoubleBookingCheck.new(reservations)
+      @allocate = AllocateSeats.new(reservations: reservations)
     end
 
     def call(event_id:, name:, email:, count:, now: Time.current)
@@ -21,15 +21,9 @@ module Ticketing
 
         inventory = @inventories.find(event_id, lock: true)
         inventory.ensure_first_come!
-        inventory.reserve(count)
+        reservation = @allocate.call(inventory: inventory, applicant: applicant, count: count,
+                                     price: sales_info.price, now: now)
         @inventories.save(inventory)
-
-        reservation = @reservations.add(
-          Reservation.apply(event_id: event_id, applicant: applicant, count: count, price: sales_info.price,
-                            reserved_at: now)
-        )
-        DomainEvents.publish(ReservationCreated.new(reservation_id: reservation.id, event_id: event_id,
-                                                    status: reservation.status, occurred_at: now))
         reservation
       end
     end
