@@ -10,6 +10,11 @@ Rails.application.config.to_prepare do
   DomainEvents.subscribe(Ticketing::ReservationConfirmed, mail)
   DomainEvents.subscribe(Ticketing::ReservationCanceled, Billing::RefundSubscriber.new)
 
+  # 席が戻ったら、キャンセル待ちに案内する
+  waitlist = Ticketing::WaitlistSubscriber.new
+  DomainEvents.subscribe(Ticketing::ReservationCanceled, waitlist)
+  DomainEvents.subscribe(Ticketing::ReservationExpired, waitlist)
+
   # すべてのドメインイベントを、業務の記録としてログに残す
   recorder = Audit::DomainEventRecorder.new
   events.each { |event_class| DomainEvents.subscribe(event_class, recorder) }
