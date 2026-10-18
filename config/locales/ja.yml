@@ -2,6 +2,7 @@ ja:
   activerecord:
     models:
       event: イベント
+      reservation: 予約
     attributes:
       event:
         title: タイトル
@@ -10,3 +11,7 @@ ja:
         starts_at: 開始日時
         capacity: 定員
         price: 料金
+      reservation:
+        name: お名前
+        email: メールアドレス
+        quantity: 人数
