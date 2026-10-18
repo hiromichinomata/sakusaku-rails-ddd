@@ -14,7 +14,7 @@ RSpec.describe "抽選販売のユースケース" do
     it "抽選に申し込める。申し込んだだけでは、席は押さえない" do
       enter("a@example.com", 2)
 
-      expect(LotteryEntry.where(event: event).count).to eq(1)
+      expect(LotteryEntry.where(event_id: event.id).count).to eq(1)
       expect(inventories.find(event.id).reserved_count).to eq(0)
     end
 
