@@ -1,5 +1,5 @@
 module Ticketing
-  # 予約。ID で見分けるエンティティ
+  # 予約。ID で見分けるエンティティ。状態は、決まった遷移のメソッドでしか変えられない
   class Reservation
     # 同じイベントに、同じメールアドレスの有効な予約がすでにある（R-03）
     class AlreadyReserved < BusinessRuleViolation
@@ -8,25 +8,77 @@ module Ticketing
       end
     end
 
-    attr_reader :id, :event_id, :applicant, :count, :price, :status
+    # 今の状態からは、その操作ができない
+    class InvalidTransition < BusinessRuleViolation
+      def initialize(state_name, action)
+        super("#{state_name}の予約は、#{action}できません")
+      end
+    end
+
+    class PaymentDeadlinePassed < BusinessRuleViolation
+      def initialize
+        super("支払い期限を過ぎています")
+      end
+    end
+
+    STATUS_NAMES = { pending: "仮予約", confirmed: "予約確定", canceled: "キャンセル済み", expired: "期限切れ" }.freeze
+    PAYMENT_WINDOW = 15 * 60 # 支払い期限は、仮予約の作成から15分後（秒）
+
+    attr_reader :id, :event_id, :applicant, :count, :price, :status, :reserved_at
+
+    def self.payment_deadline_for(reserved_at)
+      reserved_at + PAYMENT_WINDOW
+    end
 
     # 申込から、新しい予約を作る。有料なら仮予約（R-05）、無料なら予約確定（R-06）
-    def self.apply(event_id:, applicant:, count:, price:)
-      new(event_id: event_id, applicant: applicant, count: count, price: price,
+    def self.apply(event_id:, applicant:, count:, price:, reserved_at:)
+      new(event_id: event_id, applicant: applicant, count: count, price: price, reserved_at: reserved_at,
           status: price.zero? ? :confirmed : :pending)
     end
 
-    def initialize(event_id:, applicant:, count:, price:, id: nil, status: :pending)
+    def initialize(event_id:, applicant:, count:, price:, reserved_at: nil, id: nil, status: :pending)
       @id = id
       @event_id = event_id
       @applicant = applicant
       @count = count
       @price = price
+      @reserved_at = reserved_at
       @status = status
     end
 
     def total_price
       price * count.to_i
+    end
+
+    def payment_deadline
+      self.class.payment_deadline_for(reserved_at)
+    end
+
+    def status_name
+      STATUS_NAMES.fetch(status)
+    end
+
+    # 支払いが済んだ（R-05・R-10）
+    def confirm(now:)
+      raise InvalidTransition.new(status_name, "確定") unless status == :pending
+      raise PaymentDeadlinePassed if now > payment_deadline
+
+      @status = :confirmed
+    end
+
+    # 申込者が取りやめた（R-08）
+    def cancel
+      raise InvalidTransition.new(status_name, "キャンセル") unless %i[pending confirmed].include?(status)
+
+      @status = :canceled
+    end
+
+    # 支払い期限を過ぎた（R-07）
+    def expire(now:)
+      raise InvalidTransition.new(status_name, "期限切れに") unless status == :pending
+      raise InvalidTransition.new("支払い期限の前", "期限切れに") if now <= payment_deadline
+
+      @status = :expired
     end
 
     def ==(other)

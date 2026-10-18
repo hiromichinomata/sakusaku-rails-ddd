@@ -35,7 +35,8 @@ RSpec.describe Ticketing::Reservation do
   describe ".apply" do
     def apply(price)
       described_class.apply(event_id: 1, applicant: Ticketing::Applicant.new(name: "初花", email: "hatsuka@example.com"),
-                            count: Ticketing::ReservationCount.new(2), price: Money.new(price))
+                            count: Ticketing::ReservationCount.new(2), price: Money.new(price),
+                            reserved_at: Time.new(2026, 11, 1, 10, 0, 0, "+09:00"))
     end
 
     it "有料のイベントの申込は、仮予約になる（R-05）" do
