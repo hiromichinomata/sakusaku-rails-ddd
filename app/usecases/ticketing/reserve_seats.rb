@@ -22,9 +22,12 @@ module Ticketing
         inventory.reserve(count)
         @inventories.save(inventory)
 
-        @reservations.add(
+        reservation = @reservations.add(
           Reservation.apply(event_id: event_id, applicant: applicant, count: count, price: sales_info.price)
         )
+        DomainEvents.publish(ReservationCreated.new(reservation_id: reservation.id, event_id: event_id,
+                                                    status: reservation.status, occurred_at: now))
+        reservation
       end
     end
   end

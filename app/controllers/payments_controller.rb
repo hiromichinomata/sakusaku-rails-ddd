@@ -18,8 +18,13 @@ class PaymentsController < ApplicationController
 
     amount = @reservation.total_price
     charge_id = Billing::PaymentGateway.charge(amount: amount.yen, token: params[:token])
-    @reservation.create_payment!(amount: amount.yen, charge_id: charge_id)
-    @reservation.update!(status: :confirmed)
+    Reservation.transaction do
+      @reservation.create_payment!(amount: amount.yen, charge_id: charge_id)
+      @reservation.update!(status: :confirmed)
+      DomainEvents.publish(Ticketing::ReservationConfirmed.new(reservation_id: @reservation.id,
+                                                               event_id: @reservation.event_id,
+                                                               occurred_at: Time.current))
+    end
 
     redirect_to @reservation, notice: "お支払いが完了し、予約が確定しました。"
   rescue Billing::PaymentGateway::CardDeclined => e

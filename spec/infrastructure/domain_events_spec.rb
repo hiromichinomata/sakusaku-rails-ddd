@@ -1,13 +1,17 @@
 require "rails_helper"
 
 RSpec.describe DomainEvents do
-  let(:event) do
-    Ticketing::ReservationCreated.new(reservation_id: 1, event_id: 1, status: :pending, occurred_at: Time.current)
+  # 本物の購読者に届かないように、テスト専用のイベントを使う
+  let(:event_class) do
+    Class.new(Data.define(:value)) do
+      def self.event_name = "test.something_happened"
+    end
   end
+  let(:event) { event_class.new(value: 1) }
   let(:received) { [] }
 
   around do |example|
-    subscription = ActiveSupport::Notifications.subscribe(Ticketing::ReservationCreated.event_name) do |*, payload|
+    subscription = ActiveSupport::Notifications.subscribe("test.something_happened") do |*, payload|
       received << payload[:event]
     end
     example.run
