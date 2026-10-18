@@ -21,15 +21,7 @@ class ReservationsController < ApplicationController
     @reservation = Reservation.find(params[:id])
     result = Ticketing::CancelReservation.new.call(reservation_id: @reservation.id)
 
-    if result.refund_amount
-      payment = @reservation.payment
-      refund_id = Billing::PaymentGateway.refund(charge_id: payment.charge_id, amount: result.refund_amount.yen)
-      payment.update!(status: :refunded, refund_id: refund_id)
-      message = "キャンセルしました。#{result.refund_amount}を返金します。"
-    else
-      message = "キャンセルしました。"
-    end
-
+    message = result.refund_amount ? "キャンセルしました。#{result.refund_amount}を返金します。" : "キャンセルしました。"
     redirect_to @reservation, notice: message
   rescue Ticketing::BusinessRuleViolation => e
     redirect_to @reservation, alert: e.message

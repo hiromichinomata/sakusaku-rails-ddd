@@ -3,6 +3,7 @@ module Billing
   # トークン tok_visa は成功、tok_declined はカードが使えなかったものとして扱う。
   class PaymentGateway
     class CardDeclined < StandardError; end
+    class Unavailable < StandardError; end
 
     def self.charge(amount:, token:)
       raise CardDeclined, "カードが利用できませんでした" if token == "tok_declined"

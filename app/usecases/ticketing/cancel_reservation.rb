@@ -19,6 +19,8 @@ module Ticketing
         reservation.cancel
         @reservations.save(reservation)
         release_seats(reservation)
+        DomainEvents.publish(ReservationCanceled.new(reservation_id: reservation.id, event_id: reservation.event_id,
+                                                     refund_amount: refund_amount, occurred_at: now))
         Result.new(reservation: reservation, refund_amount: refund_amount)
       end
     end
