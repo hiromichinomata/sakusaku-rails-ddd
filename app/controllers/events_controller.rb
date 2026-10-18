@@ -15,7 +15,13 @@ class EventsController < ApplicationController
   def create
     @event = Event.new(event_params)
 
-    if @event.save
+    saved = Event.transaction do
+      @event.save && Ticketing::InventoryRepository.new.add(
+        Ticketing::Inventory.new(event_id: @event.id, capacity: @event.capacity)
+      )
+    end
+
+    if saved
       redirect_to @event, notice: "イベントを登録しました。"
     else
       render :new, status: :unprocessable_content

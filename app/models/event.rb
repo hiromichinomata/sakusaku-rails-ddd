@@ -1,5 +1,6 @@
 class Event < ApplicationRecord
   has_many :reservations, dependent: :destroy
+  has_one :ticket_inventory, dependent: :destroy
 
   validates :title, :venue, :starts_at, presence: true
   validates :capacity, numericality: { only_integer: true, greater_than: 0 }

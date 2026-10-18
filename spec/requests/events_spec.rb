@@ -49,6 +49,14 @@ RSpec.describe "イベント", type: :request do
       expect(response).to redirect_to(event_path(Event.last))
     end
 
+    it "イベントを登録すると、予約のコンテキストの残席も作られる" do
+      post events_path, params: valid_params
+
+      inventory = Ticketing::InventoryRepository.new.find(Event.last.id)
+      expect(inventory.capacity).to eq(20)
+      expect(inventory.reserved_count).to eq(0)
+    end
+
     it "入力に誤りがあれば、登録せずにエラーを表示する" do
       invalid_params = { event: valid_params[:event].merge(title: "", capacity: 0) }
 

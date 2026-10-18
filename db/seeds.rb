@@ -22,3 +22,8 @@ Event.find_or_create_by!(title: "梅しごと少人数講座") do |event|
   event.capacity = 4
   event.price = 3000
 end
+
+# 予約のコンテキストの残席も用意する
+Event.find_each do |event|
+  TicketInventory.find_or_create_by!(event: event) { |inventory| inventory.capacity = event.capacity }
+end

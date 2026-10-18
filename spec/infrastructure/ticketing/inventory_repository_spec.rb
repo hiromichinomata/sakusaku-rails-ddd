@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Ticketing::InventoryRepository do
   let(:repository) { described_class.new }
-  let(:event) { create(:event, capacity: 20) }
+  let(:event) { create(:event, capacity: 20, with_inventory: false) }
 
   it "残席を保存して、読み込める" do
     repository.add(Ticketing::Inventory.new(event_id: event.id, capacity: 20))
