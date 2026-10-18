@@ -48,7 +48,7 @@ RSpec.describe Ticketing::Reservation do
     end
   end
 
-  it "人数は1〜4人の範囲でしか作れない" do
-    expect { build(count: 5) }.to raise_error(ArgumentError)
+  it "人数は1〜10人の範囲でしか作れない" do
+    expect { build(count: 11) }.to raise_error(ArgumentError)
   end
 end
