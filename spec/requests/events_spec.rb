@@ -1,19 +1,10 @@
 require "rails_helper"
 
 RSpec.describe "イベント", type: :request do
-  let!(:event) do
-    Event.create!(
-      title: "梅酒づくりワークショップ",
-      description: "青梅と氷砂糖で、自分だけの梅酒を仕込みます。",
-      venue: "うめ公民館",
-      starts_at: Time.zone.local(2026, 11, 15, 10, 0),
-      capacity: 20,
-      price: 1500
-    )
-  end
-
   describe "GET /events" do
     it "イベントのタイトルを一覧に表示する" do
+      create(:event, title: "梅酒づくりワークショップ")
+
       get events_path
 
       expect(response).to have_http_status(:ok)
@@ -23,27 +14,22 @@ RSpec.describe "イベント", type: :request do
 
   describe "GET /events/:id" do
     it "イベントの詳細を表示する" do
+      event = create(:event, venue: "うめ公民館", starts_at: Time.zone.local(2026, 11, 15, 10, 0),
+                             capacity: 20, price: 1500)
+
       get event_path(event)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("うめ公民館")
       expect(response.body).to include("2026年11月15日 10:00")
-      expect(response.body).to include("定員 20人")
+      expect(response.body).to include("定員 20人（残り 20席）")
       expect(response.body).to include("1,500円")
     end
   end
 
   describe "POST /events" do
     let(:valid_params) do
-      {
-        event: {
-          title: "梅林ガイドツアー",
-          venue: "うめ公園",
-          starts_at: "2026-12-06 13:00",
-          capacity: 30,
-          price: 0
-        }
-      }
+      { event: attributes_for(:event, title: "梅林ガイドツアー", starts_at: "2026-12-06 13:00") }
     end
 
     it "イベントを登録して、詳細画面へ移動する" do

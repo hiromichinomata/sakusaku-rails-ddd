@@ -58,6 +58,9 @@ group :development, :test do
 
   # Testing framework [https://rspec.info/]
   gem "rspec-rails", "~> 8.0"
+
+  # Test data factories [https://github.com/thoughtbot/factory_bot_rails]
+  gem "factory_bot_rails", "~> 6.5"
 end
 
 group :development do
