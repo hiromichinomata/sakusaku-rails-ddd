@@ -52,6 +52,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Testing framework [https://rspec.info/]
+  gem "rspec-rails", "~> 8.0"
 end
 
 group :development do
