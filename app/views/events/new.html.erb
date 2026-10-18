@@ -1,0 +1,32 @@
+<h1>イベントを登録する</h1>
+
+<%= form_with model: @event do |form| %>
+  <%= render "shared/errors", record: @event %>
+
+  <p>
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </p>
+  <p>
+    <%= form.label :description %>
+    <%= form.text_area :description %>
+  </p>
+  <p>
+    <%= form.label :venue %>
+    <%= form.text_field :venue %>
+  </p>
+  <p>
+    <%= form.label :starts_at %>
+    <%= form.datetime_local_field :starts_at %>
+  </p>
+  <p>
+    <%= form.label :capacity %>
+    <%= form.number_field :capacity, min: 1 %>
+  </p>
+  <p>
+    <%= form.label :price %>
+    <%= form.number_field :price, min: 0 %>円
+  </p>
+
+  <%= form.submit "登録する" %>
+<% end %>

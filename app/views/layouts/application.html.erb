@@ -24,6 +24,16 @@
   </head>
 
   <body>
+    <header>
+      <%= link_to "うめチケット", root_path %> |
+      <%= link_to "イベント一覧", events_path %> |
+      <%= link_to "イベントを登録する", new_event_path %>
+    </header>
+
+    <% flash.each do |type, message| %>
+      <p class="flash <%= type %>"><%= message %></p>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>

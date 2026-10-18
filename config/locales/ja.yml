@@ -1,0 +1,12 @@
+ja:
+  activerecord:
+    models:
+      event: イベント
+    attributes:
+      event:
+        title: タイトル
+        description: 説明
+        venue: 会場
+        starts_at: 開始日時
+        capacity: 定員
+        price: 料金
