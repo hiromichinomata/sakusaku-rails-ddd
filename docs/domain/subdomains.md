@@ -8,6 +8,14 @@
 | 通知 | 汎用 | メールを送る | Action Mailer とメール配信サービスを使う | `ReservationMailer`・メールのテンプレート |
 | 認証 | 汎用 | 主催者のログイン | Rails の認証の雛形を使う（本書では扱わない） | なし |
 
+## 第21章で足したもの
+
+| 足したもの | サブドメイン | 置き場所 |
+|----------|------------|--------|
+| 抽選販売 | 予約（コア） | `Ticketing::Lottery`・`EnterLottery`・`DrawLottery`（ADR 0001） |
+| キャンセル待ち | 予約（コア） | `Ticketing::Waitlist`・`JoinWaitlist`・`OfferReleasedSeats`（ADR 0002） |
+| 主催者ごとの予約のルール | 予約（コア）。主催者はイベント管理（支援） | `Ticketing::ReservationPolicy`・`Organizer`（ADR 0003） |
+
 ## コアに投資する理由
 
 - 申込者が一番困るのは「取れたはずの席が取れていない」「返金されると思っていたのにされない」こと
