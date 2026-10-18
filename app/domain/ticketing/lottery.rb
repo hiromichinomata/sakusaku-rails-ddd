@@ -1,7 +1,13 @@
 module Ticketing
   # 抽選。申込を乱数の順に並べ、残席に入る申込から当選にする（R-13）
   class Lottery
-    Entry = Data.define(:id, :count)
+    # 抽選の申込。申込者は、当選したときの予約に使う
+    class Entry < Data.define(:id, :count, :applicant)
+      def initialize(id:, count:, applicant: nil)
+        super
+      end
+    end
+
     Result = Data.define(:winners, :losers)
 
     def initialize(seats:)

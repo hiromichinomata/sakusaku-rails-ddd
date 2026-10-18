@@ -19,6 +19,7 @@ module Ticketing
         @double_booking.ensure_not_double_booked!(event_id: event_id, email: applicant.email)
 
         inventory = @inventories.find(event_id, lock: true)
+        inventory.ensure_first_come!
         inventory.reserve(count)
         @inventories.save(inventory)
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_120343) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_160133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_120343) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["key"], name: "index_idempotency_keys_on_key", unique: true
+  end
+
+  create_table "lottery_entries", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name", null: false
+    t.string "email", null: false
+    t.integer "quantity", null: false
+    t.string "status", default: "entered", null: false
+    t.bigint "reservation_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "email"], name: "index_lottery_entries_on_event_id_and_email", unique: true
+    t.index ["event_id"], name: "index_lottery_entries_on_event_id"
   end
 
   create_table "payments", force: :cascade do |t|
@@ -65,10 +78,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_120343) do
     t.integer "reserved_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sales_method", default: "first_come", null: false
     t.index ["event_id"], name: "index_ticket_inventories_on_event_id", unique: true
     t.check_constraint "reserved_count >= 0 AND reserved_count <= capacity", name: "reserved_count_within_capacity"
   end
 
+  add_foreign_key "lottery_entries", "events"
   add_foreign_key "payments", "reservations"
   add_foreign_key "reservations", "events"
   add_foreign_key "ticket_inventories", "events"

@@ -10,7 +10,7 @@ module Ticketing
 
     def add(inventory)
       TicketInventory.create!(event_id: inventory.event_id, capacity: inventory.capacity,
-                              reserved_count: inventory.reserved_count)
+                              reserved_count: inventory.reserved_count, sales_method: inventory.sales_method.to_s)
     end
 
     def save(inventory)
@@ -22,7 +22,8 @@ module Ticketing
     private
 
     def to_entity(record)
-      Inventory.new(event_id: record.event_id, capacity: record.capacity, reserved_count: record.reserved_count)
+      Inventory.new(event_id: record.event_id, capacity: record.capacity, reserved_count: record.reserved_count,
+                    sales_method: record.sales_method.to_sym)
     end
   end
 end
