@@ -3,7 +3,10 @@ module Ticketing
   # 「予約済みの人数は定員を超えない（R-01）」をこのクラスだけで守る。
   class Inventory
     class NotEnoughSeats < BusinessRuleViolation
+      attr_reader :remaining_seats
+
       def initialize(remaining_seats)
+        @remaining_seats = remaining_seats
         super("残りの席数（#{remaining_seats}席）を超えています")
       end
     end

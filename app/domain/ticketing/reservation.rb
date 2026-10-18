@@ -10,6 +10,12 @@ module Ticketing
 
     attr_reader :id, :event_id, :applicant, :count, :price, :status
 
+    # 申込から、新しい予約を作る。有料なら仮予約（R-05）、無料なら予約確定（R-06）
+    def self.apply(event_id:, applicant:, count:, price:)
+      new(event_id: event_id, applicant: applicant, count: count, price: price,
+          status: price.zero? ? :confirmed : :pending)
+    end
+
     def initialize(event_id:, applicant:, count:, price:, id: nil, status: :pending)
       @id = id
       @event_id = event_id

@@ -32,6 +32,21 @@ RSpec.describe Ticketing::Reservation do
     expect(build(count: 2).total_price).to eq(Money.new(3000))
   end
 
+  describe ".apply" do
+    def apply(price)
+      described_class.apply(event_id: 1, applicant: Ticketing::Applicant.new(name: "初花", email: "hatsuka@example.com"),
+                            count: Ticketing::ReservationCount.new(2), price: Money.new(price))
+    end
+
+    it "有料のイベントの申込は、仮予約になる（R-05）" do
+      expect(apply(1500).status).to eq(:pending)
+    end
+
+    it "無料のイベントの申込は、予約確定になる（R-06）" do
+      expect(apply(0).status).to eq(:confirmed)
+    end
+  end
+
   it "人数は1〜4人の範囲でしか作れない" do
     expect { build(count: 5) }.to raise_error(ArgumentError)
   end
