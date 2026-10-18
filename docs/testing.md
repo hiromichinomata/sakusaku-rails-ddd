@@ -4,7 +4,7 @@
 
 | 層 | フォルダ | 読み込むもの | 確かめること | 主なテストダブル |
 |----|---------|-----------|------------|--------------|
-| ドメイン | `spec/domain` | `domain_helper`（Rails なし） | 業務のルールと境界の値（R-01〜R-12） | `double`（リポジトリの代わり） |
+| ドメイン | `spec/domain` | `domain_helper`（Rails なし） | 業務のルールと境界の値（R-01〜R-14） | `double`（リポジトリの代わり） |
 | フォーム | `spec/forms` | `rails_helper` | 入力の形のチェックと、メッセージ | なし |
 | ユースケース | `spec/usecases` | `rails_helper`（データベースあり） | 部品のつながり・トランザクション・イベントの発行 | 偽物の決済の窓口 |
 | インフラ | `spec/infrastructure` | `rails_helper` | リポジトリの変換・外部サービスのアダプター・契約 | WebMock |
