@@ -62,8 +62,6 @@ RSpec.describe "キャンセル", type: :request do
     end
 
     it "ちょうど開催3日前は、画面の案内と実際の返金が一致する" do
-      pending "画面とコントローラで、期限の比べ方（>= と >）が違う"
-
       travel_to Time.zone.local(2026, 11, 12, 10, 0) do
         get reservation_path(reservation)
         announced_refund = response.body.include?("全額を返金します")

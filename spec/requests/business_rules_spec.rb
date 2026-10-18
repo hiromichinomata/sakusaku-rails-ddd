@@ -56,7 +56,6 @@ RSpec.describe "業務ルールの境界", type: :request do
     before { pay(reservation) }
 
     it "ちょうど72時間前のキャンセルは、全額返金する" do
-      pending "コントローラが「72時間前より前」で比べている（第14章で直す）"
       travel_to(starts_at - 72.hours) { patch cancel_reservation_path(reservation) }
 
       expect(reservation.reload.payment).to be_refunded
@@ -70,11 +69,14 @@ RSpec.describe "業務ルールの境界", type: :request do
   end
 
   describe "R-10 キャンセル済みは予約確定に戻せない" do
-    it "キャンセル済みの予約を確定に書き換えられない" do
-      pending "状態を自由に書き換えられる（第14章で直す）"
-      reservation = create(:reservation, event: event, status: "canceled")
+    it "キャンセルした予約に支払いを送っても、予約確定にならない" do
+      reservation = create(:reservation, event: event)
+      patch cancel_reservation_path(reservation)
 
-      expect(reservation.update(status: "confirmed")).to be(false)
+      pay(reservation)
+
+      expect(reservation.reload).to be_canceled
+      expect(reservation.payment).to be_nil
     end
   end
 end
