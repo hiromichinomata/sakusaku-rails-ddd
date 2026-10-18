@@ -8,7 +8,10 @@ class PaymentsController < ApplicationController
     end
 
     if @reservation.created_at < 15.minutes.ago
-      @reservation.update!(status: :expired)
+      Reservation.transaction do
+        @reservation.update!(status: :expired)
+        Ticketing::ReleaseSeats.new.call(event_id: @reservation.event_id, count: @reservation.quantity)
+      end
       redirect_to @reservation, alert: "お支払いの期限を過ぎたため、予約は取り消されました。"
       return
     end

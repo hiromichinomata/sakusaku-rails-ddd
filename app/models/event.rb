@@ -8,7 +8,7 @@ class Event < ApplicationRecord
   validate :capacity_not_below_reserved, on: :update
 
   def reserved_count
-    reservations.active.sum(:quantity)
+    ticket_inventory&.reserved_count || 0
   end
 
   def remaining_seats

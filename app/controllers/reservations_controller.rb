@@ -6,13 +6,19 @@ class ReservationsController < ApplicationController
   def create
     @event = Event.find(params[:event_id])
     @reservation = @event.reservations.build(reservation_params)
+    return render_event_page unless @reservation.valid?
 
-    if @reservation.save
-      notice = @reservation.confirmed? ? "予約が確定しました。" : "仮予約しました。15分以内にお支払いください。"
-      redirect_to @reservation, notice: notice
-    else
-      render "events/show", status: :unprocessable_content
-    end
+    reservation = Ticketing::ReserveSeats.new.call(
+      event_id: @event.id, name: @reservation.name, email: @reservation.email, count: @reservation.quantity
+    )
+    notice = reservation.status == :confirmed ? "予約が確定しました。" : "仮予約しました。15分以内にお支払いください。"
+    redirect_to reservation_path(reservation.id), notice: notice
+  rescue Ticketing::Inventory::NotEnoughSeats => e
+    @reservation.errors.add(:quantity, :exceeds_remaining_seats, count: e.remaining_seats)
+    render_event_page
+  rescue Ticketing::BusinessRuleViolation => e
+    @reservation.errors.add(:base, e.message)
+    render_event_page
   end
 
   def cancel
@@ -31,7 +37,10 @@ class ReservationsController < ApplicationController
     else
       message = "キャンセルしました。"
     end
-    @reservation.update!(status: :canceled)
+    Reservation.transaction do
+      @reservation.update!(status: :canceled)
+      Ticketing::ReleaseSeats.new.call(event_id: @reservation.event_id, count: @reservation.quantity)
+    end
 
     redirect_to @reservation, notice: message
   end
@@ -40,5 +49,9 @@ class ReservationsController < ApplicationController
 
   def reservation_params
     params.expect(reservation: %i[name email quantity])
+  end
+
+  def render_event_page
+    render "events/show", status: :unprocessable_content
   end
 end

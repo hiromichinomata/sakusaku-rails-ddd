@@ -13,13 +13,9 @@ class Reservation < ApplicationRecord
 
   validates :name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :email, uniqueness: { scope: :event_id, conditions: -> { active }, message: :already_reserved },
-                    on: :create
   validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: Ticketing::ReservationCount::MAX }
-  validate :quantity_within_remaining_seats
-  validate :event_accepting_reservations, on: :create
 
-  before_create :copy_price_from_event, :confirm_if_free
+  before_create :copy_price_from_event
   after_create_commit :send_payment_request_mail, if: :pending?
   after_update_commit :send_confirmed_mail, if: -> { saved_change_to_status?(to: "confirmed") }
 
@@ -29,27 +25,8 @@ class Reservation < ApplicationRecord
 
   private
 
-  def quantity_within_remaining_seats
-    return if event.nil? || quantity.nil?
-
-    remaining = event.capacity - event.reservations.active.where.not(id: id).sum(:quantity)
-    if quantity > remaining
-      errors.add(:quantity, :exceeds_remaining_seats, count: remaining)
-    end
-  end
-
-  def event_accepting_reservations
-    return if event.nil?
-
-    errors.add(:base, :reservation_closed) if event.starts_at <= Time.current
-  end
-
   def copy_price_from_event
     self.price ||= event&.price
-  end
-
-  def confirm_if_free
-    self.status = :confirmed if price.zero?
   end
 
   def send_payment_request_mail
