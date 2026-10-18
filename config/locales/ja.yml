@@ -17,6 +17,10 @@ ja:
         quantity: 人数
     errors:
       models:
+        event:
+          attributes:
+            capacity:
+              below_reserved: "は予約済みの人数（%{count}人）より少なくできません"
         reservation:
           attributes:
             base:

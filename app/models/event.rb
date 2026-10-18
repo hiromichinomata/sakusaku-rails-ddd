@@ -4,6 +4,7 @@ class Event < ApplicationRecord
   validates :title, :venue, :starts_at, presence: true
   validates :capacity, numericality: { only_integer: true, greater_than: 0 }
   validates :price, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validate :capacity_not_below_reserved, on: :update
 
   def reserved_count
     reservations.active.sum(:quantity)
@@ -11,5 +12,13 @@ class Event < ApplicationRecord
 
   def remaining_seats
     capacity - reserved_count
+  end
+
+  private
+
+  def capacity_not_below_reserved
+    return unless capacity_changed? && capacity.present?
+
+    errors.add(:capacity, :below_reserved, count: reserved_count) if capacity < reserved_count
   end
 end
