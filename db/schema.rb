@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_160133) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_160347) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,8 +83,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160133) do
     t.check_constraint "reserved_count >= 0 AND reserved_count <= capacity", name: "reserved_count_within_capacity"
   end
 
+  create_table "waitlist_entries", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name", null: false
+    t.string "email", null: false
+    t.integer "quantity", null: false
+    t.string "status", default: "waiting", null: false
+    t.bigint "reservation_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "email"], name: "index_waitlist_entries_on_event_id_and_email", unique: true, where: "((status)::text = 'waiting'::text)"
+    t.index ["event_id"], name: "index_waitlist_entries_on_event_id"
+  end
+
   add_foreign_key "lottery_entries", "events"
   add_foreign_key "payments", "reservations"
   add_foreign_key "reservations", "events"
   add_foreign_key "ticket_inventories", "events"
+  add_foreign_key "waitlist_entries", "events"
 end
