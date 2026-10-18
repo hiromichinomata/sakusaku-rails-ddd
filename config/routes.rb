@@ -16,6 +16,12 @@ Rails.application.routes.draw do
     resources :reservations, only: %i[create]
   end
 
+  namespace :api do
+    resources :events, only: [] do
+      resources :reservations, only: %i[create]
+    end
+  end
+
   resources :reservations, only: %i[show] do
     resource :payment, only: %i[create]
     member { patch :cancel }
