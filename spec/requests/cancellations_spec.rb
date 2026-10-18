@@ -22,6 +22,16 @@ RSpec.describe "キャンセル", type: :request do
       expect(response.body).to include("キャンセルしました。6,000円を返金します。")
     end
 
+    it "返金は、支払った金額で決済サービスに依頼する" do
+      expect(PaymentGateway).to receive(:refund)
+        .with(charge_id: reservation.payment.charge_id, amount: 6000)
+        .and_call_original
+
+      travel_to Time.zone.local(2026, 11, 10, 12, 0) do
+        patch cancel_reservation_path(reservation)
+      end
+    end
+
     it "開催3日前を過ぎたら、キャンセルはできるが返金しない" do
       travel_to Time.zone.local(2026, 11, 13, 12, 0) do
         patch cancel_reservation_path(reservation)
