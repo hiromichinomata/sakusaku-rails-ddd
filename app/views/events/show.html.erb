@@ -1,0 +1,16 @@
+<h1><%= @event.title %></h1>
+
+<p><%= @event.description %></p>
+
+<dl>
+  <dt>会場</dt>
+  <dd><%= @event.venue %></dd>
+  <dt>日時</dt>
+  <dd><%= @event.starts_at.strftime("%Y年%-m月%-d日 %H:%M") %></dd>
+  <dt>定員</dt>
+  <dd>定員 <%= @event.capacity %>人</dd>
+  <dt>料金</dt>
+  <dd><%= number_with_delimiter(@event.price) %>円</dd>
+</dl>
+
+<%= link_to "イベント一覧へ戻る", events_path %>
