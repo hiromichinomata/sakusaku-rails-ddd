@@ -1,8 +1,9 @@
 module Ticketing
   # 残席（Inventory）を ticket_inventories テーブルに保存し、読み込む
   class InventoryRepository
-    def find(event_id)
-      to_entity(TicketInventory.find_by!(event_id: event_id))
+    # lock: true なら、トランザクションが終わるまで、ほかの人がこの残席を読んで変えるのを待たせる
+    def find(event_id, lock: false)
+      to_entity(TicketInventory.lock(lock).find_by!(event_id: event_id))
     rescue ActiveRecord::RecordNotFound
       raise NotFound, "イベント #{event_id} の残席が見つかりません"
     end

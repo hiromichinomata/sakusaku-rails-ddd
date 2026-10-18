@@ -36,7 +36,7 @@ module Ticketing
     end
 
     def release_seats(reservation)
-      inventory = @inventories.find(reservation.event_id)
+      inventory = @inventories.find(reservation.event_id, lock: true)
       inventory.release(reservation.count)
       @inventories.save(inventory)
     end

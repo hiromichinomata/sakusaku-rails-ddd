@@ -33,5 +33,6 @@ RSpec.describe "同時の申込", :concurrency do
     puts "成功: #{results.count { |r| r.is_a?(Ticketing::Reservation) }}件 / " \
          "有効な予約の人数: #{reserved}人 / 残席の予約済みの人数: #{event.ticket_inventory.reload.reserved_count}人（定員4人）"
     expect(reserved).to be <= 4
+    expect(results.grep(Exception).map(&:class)).to eq([ Ticketing::Inventory::NotEnoughSeats ])
   end
 end
