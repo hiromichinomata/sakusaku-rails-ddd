@@ -11,8 +11,8 @@
 | 5 | メール送信がコールバックに隠れていて、コンソールやテストで作っただけでも送られる | `Reservation` のコールバック | 隠れた副作用 | ✅ 第12章（ドメインイベント → 通知の購読者 → ジョブ） |
 | 6 | 決済サービスの呼び出しがコントローラに直接書かれ、テストではクラスごとスタブにしている | `PaymentsController`・`ReservationsController#cancel` | 外部サービス | ✅ 第15章（`Billing.gateway` のアダプター） |
 | 7 | 返金するかどうかの判断がコントローラにあり、HTTPリクエストを通さないとテストできない | `ReservationsController#cancel` | テストしにくさ | ✅ 第14章（`CancelReservation`） |
-| 8 | 席の数を `SUM` で数えてから `INSERT` するまでの間に、別の予約が割り込める | `Reservation#quantity_within_remaining_seats` | 並行処理 | 第16章 |
-| 9 | 二重予約のチェック（`uniqueness`）も同じく、同時に来ると両方通る | `Reservation` のバリデーション | 並行処理 | 第16章 |
+| 8 | 席の数を `SUM` で数えてから `INSERT` するまでの間に、別の予約が割り込める | `Reservation#quantity_within_remaining_seats` | 並行処理 | ✅ 第16章（残席の行ロック） |
+| 9 | 二重予約のチェック（`uniqueness`）も同じく、同時に来ると両方通る | `Reservation` のバリデーション | 並行処理 | ✅ 第16章（部分ユニークインデックス） |
 | 10 | 金額が「整数 × 整数」で、どこにも「円」や合計の決まりがない | `Reservation#total_price` | 値の表現 | ✅ 第8章（`Money`） |
 | 11 | 決済サービスが落ちたとき、返金に失敗したときを考えていない | 支払い・キャンセル | 失敗と再試行 | ✅ 第14章（返金のやり直し）・第15章（タイムアウト・冪等キー） |
 | 12 | 期限切れを `update_all` で書き換えるので、メールもログも残らない | `ExpirePendingReservationsJob` | 隠れた状態変更 | 第12章・第20章 |

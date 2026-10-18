@@ -43,6 +43,44 @@ RSpec.describe "予約の API", type: :request do
     expect(response.parsed_body.dig("error", "code")).to eq("already_reserved")
   end
 
+  describe "Idempotency-Key" do
+    def reserve_with_key(key, email: "hatsuka@example.com")
+      post api_event_reservations_path(event),
+           params: { reservation: { name: "初花", email: email, quantity: 2 } },
+           headers: { "Idempotency-Key" => key }, as: :json
+    end
+
+    it "同じキーで送り直しても、申込は1回だけで、同じ応答が返る" do
+      reserve_with_key("key-1")
+      first = response.parsed_body
+
+      reserve_with_key("key-1")
+
+      expect(response).to have_http_status(:created)
+      expect(response.parsed_body).to eq(first)
+      expect(Reservation.count).to eq(1)
+    end
+
+    it "違うキーなら、別の申込として扱う（同じメールアドレスなら二重予約）" do
+      reserve_with_key("key-1")
+      reserve_with_key("key-2")
+
+      expect(response).to have_http_status(:conflict)
+      expect(response.parsed_body.dig("error", "code")).to eq("already_reserved")
+    end
+
+    it "業務のエラーになった申込は、同じキーでもう一度やり直せる" do
+      event.ticket_inventory.update!(reserved_count: 4)
+      reserve_with_key("key-1")
+      expect(response).to have_http_status(:conflict)
+
+      event.ticket_inventory.update!(reserved_count: 0) # キャンセルが出て、席が空いた
+      reserve_with_key("key-1")
+
+      expect(response).to have_http_status(:created)
+    end
+  end
+
   it "イベントがなければ 404 を返す" do
     reserve(event_id: 0)
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_112221) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_120343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_112221) do
     t.integer "price", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "idempotency_keys", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "request_path", null: false
+    t.integer "response_status"
+    t.jsonb "response_body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_idempotency_keys_on_key", unique: true
   end
 
   create_table "payments", force: :cascade do |t|
