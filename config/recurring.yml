@@ -16,3 +16,6 @@ production:
   expire_pending_reservations:
     class: ExpirePendingReservationsJob
     schedule: every minute
+  check_inventory_consistency:
+    class: CheckInventoryConsistencyJob
+    schedule: every hour
