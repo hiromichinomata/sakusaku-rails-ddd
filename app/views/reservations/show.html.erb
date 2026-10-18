@@ -10,7 +10,7 @@
   <dt>人数</dt>
   <dd><%= @reservation.quantity %>人</dd>
   <dt>金額</dt>
-  <dd><%= number_with_delimiter(@reservation.total_price) %>円</dd>
+  <dd><%= @reservation.total_price %></dd>
   <dt>状態</dt>
   <dd><%= t(@reservation.status, scope: "reservation_statuses") %></dd>
 </dl>

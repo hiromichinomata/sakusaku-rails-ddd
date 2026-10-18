@@ -14,8 +14,8 @@ class PaymentsController < ApplicationController
     end
 
     amount = @reservation.total_price
-    charge_id = Billing::PaymentGateway.charge(amount: amount, token: params[:token])
-    @reservation.create_payment!(amount: amount, charge_id: charge_id)
+    charge_id = Billing::PaymentGateway.charge(amount: amount.yen, token: params[:token])
+    @reservation.create_payment!(amount: amount.yen, charge_id: charge_id)
     @reservation.update!(status: :confirmed)
 
     redirect_to @reservation, notice: "お支払いが完了し、予約が確定しました。"

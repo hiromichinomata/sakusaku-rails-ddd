@@ -1,6 +1,4 @@
 class Reservation < ApplicationRecord
-  MAX_QUANTITY = 4
-
   belongs_to :event
   has_one :payment, dependent: :destroy
 
@@ -17,7 +15,7 @@ class Reservation < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :email, uniqueness: { scope: :event_id, conditions: -> { active }, message: :already_reserved },
                     on: :create
-  validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: MAX_QUANTITY }
+  validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: Ticketing::ReservationCount::MAX }
   validate :quantity_within_remaining_seats
   validate :event_accepting_reservations, on: :create
 
@@ -26,7 +24,7 @@ class Reservation < ApplicationRecord
   after_update_commit :send_confirmed_mail, if: -> { saved_change_to_status?(to: "confirmed") }
 
   def total_price
-    event.price * quantity
+    Money.new(event.price) * quantity
   end
 
   private
