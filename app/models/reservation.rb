@@ -1,9 +1,11 @@
 class Reservation < ApplicationRecord
+  MAX_QUANTITY = 4
+
   belongs_to :event
 
   validates :name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :quantity, numericality: { only_integer: true, greater_than: 0 }
+  validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: MAX_QUANTITY }
   validate :quantity_within_remaining_seats
 
   private

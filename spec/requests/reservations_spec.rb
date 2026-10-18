@@ -28,8 +28,17 @@ RSpec.describe "予約", type: :request do
       expect(response.body).to include("人数は0より大きい値にしてください")
     end
 
+    it "1回の予約は4人まで" do
+      expect { reserve(quantity: 5) }.not_to change(Reservation, :count)
+
+      expect(response.body).to include("人数は4以下の値にしてください")
+    end
+
     context "残りの席が2席のとき" do
-      before { create(:reservation, event: event, quantity: 18) }
+      before do
+        create_list(:reservation, 4, event: event, quantity: 4)
+        create(:reservation, event: event, quantity: 2)
+      end
 
       it "2人なら予約できる" do
         expect { reserve(quantity: 2) }.to change(Reservation, :count).by(1)
