@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # 決済は、手元で動く偽物の窓口を使う（Billing.gateway）
+  config.x.payment_gateway = :fake
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.

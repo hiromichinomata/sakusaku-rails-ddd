@@ -58,6 +58,12 @@ module Ticketing
       STATUS_NAMES.fetch(status)
     end
 
+    # 支払いを受け付けてよいか。決済サービスに頼む前に確かめる（R-05・R-10）
+    def ensure_payable!(now:)
+      raise InvalidTransition.new(status_name, "支払い") unless status == :pending
+      raise PaymentDeadlinePassed if now > payment_deadline
+    end
+
     # 支払いが済んだ（R-05・R-10）
     def confirm(now:)
       raise InvalidTransition.new(status_name, "確定") unless status == :pending

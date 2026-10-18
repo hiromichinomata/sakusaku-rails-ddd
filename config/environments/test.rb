@@ -4,6 +4,9 @@
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  # 決済は、手元で動く偽物の窓口を使う（Billing.gateway）
+  config.x.payment_gateway = :fake
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.

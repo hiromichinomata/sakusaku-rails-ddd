@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # 決済は、うめペイの HTTP API を使う（Billing.gateway）。API キーは環境変数 UMEPAY_API_KEY
+  config.x.payment_gateway = :umepay
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
