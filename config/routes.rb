@@ -12,5 +12,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#index"
 
-  resources :events, only: %i[index show new create]
+  resources :events, only: %i[index show new create] do
+    resources :reservations, only: %i[create]
+  end
 end
