@@ -13,6 +13,14 @@ RSpec.describe Ticketing::Reservation, "の状態遷移" do
     expect(reservation(:pending).payment_deadline).to eq(reserved_at + (15 * 60))
   end
 
+  it "支払い期限までの時間を決めて、予約を作れる（抽選の当選者は24時間。R-13）" do
+    target = described_class.apply(event_id: 1, applicant: Ticketing::Applicant.new(name: "初花", email: "hatsuka@example.com"),
+                                   count: Ticketing::ReservationCount.new(2), price: Money.new(1500),
+                                   reserved_at: reserved_at, payment_window: 24 * 60 * 60)
+
+    expect(target.payment_deadline).to eq(reserved_at + (24 * 60 * 60))
+  end
+
   describe "#confirm（支払いが済んだ）" do
     it "仮予約は、支払い期限ちょうどまでなら予約確定になる（R-05）" do
       target = reservation(:pending)

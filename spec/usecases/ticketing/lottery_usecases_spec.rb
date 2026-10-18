@@ -54,6 +54,23 @@ RSpec.describe "抽選販売のユースケース" do
       expect(delivered_subjects.size).to eq(result.winners.size)
     end
 
+    it "当選者の支払い期限は、抽選から24時間後（R-13）" do
+      now = Time.current
+      described_class.new.call(event_id: event.id, random: Random.new(7), now: now)
+
+      Reservation.where(event: event).find_each do |reservation|
+        expect(reservation.payment_deadline).to be_within(1.second).of(now + 24.hours)
+      end
+    end
+
+    it "当選者の仮予約は、1時間たっても期限切れにならない" do
+      described_class.new.call(event_id: event.id, random: Random.new(7))
+
+      ExpirePendingReservationsJob.perform_now(now: 1.hour.from_now)
+
+      expect(Reservation.pending.count).to eq(LotteryEntry.won.count)
+    end
+
     it "抽選は1回だけ。2回目は、新しく当選も落選もしない" do
       described_class.new.call(event_id: event.id, random: Random.new(7))
 
