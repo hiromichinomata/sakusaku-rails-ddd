@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_104745) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_111742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,9 +44,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_104745) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "status", default: "pending", null: false
+    t.index ["event_id", "email"], name: "index_reservations_on_event_id_and_email_active", unique: true, where: "((status)::text = ANY ((ARRAY['pending'::character varying, 'confirmed'::character varying])::text[]))"
     t.index ["event_id"], name: "index_reservations_on_event_id"
+  end
+
+  create_table "ticket_inventories", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.integer "capacity", null: false
+    t.integer "reserved_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_ticket_inventories_on_event_id", unique: true
+    t.check_constraint "reserved_count >= 0 AND reserved_count <= capacity", name: "reserved_count_within_capacity"
   end
 
   add_foreign_key "payments", "reservations"
   add_foreign_key "reservations", "events"
+  add_foreign_key "ticket_inventories", "events"
 end
