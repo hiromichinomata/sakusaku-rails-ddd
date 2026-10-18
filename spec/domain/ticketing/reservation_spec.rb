@@ -3,7 +3,7 @@ require "domain_helper"
 RSpec.describe Ticketing::Reservation do
   def build(id: nil, count: 2)
     described_class.new(id: id, event_id: 1, name: "初花", email: "hatsuka@example.com",
-                        count: count, price: 1500)
+                        count: count, price: Money.new(1500))
   end
 
   describe "同一性" do
@@ -24,6 +24,6 @@ RSpec.describe Ticketing::Reservation do
   end
 
   it "支払い金額は、料金 × 人数" do
-    expect(build(count: 2).total_price).to eq(3000)
+    expect(build(count: 2).total_price).to eq(Money.new(3000))
   end
 end
