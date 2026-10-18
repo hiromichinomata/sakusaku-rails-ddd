@@ -34,7 +34,7 @@ class Reservation < ApplicationRecord
   def quantity_within_remaining_seats
     return if event.nil? || quantity.nil?
 
-    remaining = event.capacity - event.reservations.where.not(id: id).sum(:quantity)
+    remaining = event.capacity - event.reservations.active.where.not(id: id).sum(:quantity)
     if quantity > remaining
       errors.add(:quantity, :exceeds_remaining_seats, count: remaining)
     end

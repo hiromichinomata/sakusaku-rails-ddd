@@ -27,3 +27,13 @@
     <%= form.submit "支払う" %>
   <% end %>
 <% end %>
+
+<% if @reservation.pending? || @reservation.confirmed? %>
+  <h2>キャンセル</h2>
+  <% if @reservation.confirmed? && @reservation.event.starts_at >= 3.days.from_now %>
+    <p>今キャンセルすると、お支払いの全額を返金します。</p>
+  <% elsif @reservation.confirmed? %>
+    <p>開催3日前を過ぎたため、キャンセルしても返金はありません。</p>
+  <% end %>
+  <%= button_to "キャンセルする", cancel_reservation_path(@reservation), method: :patch %>
+<% end %>

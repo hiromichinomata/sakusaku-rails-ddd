@@ -27,6 +27,17 @@ RSpec.describe "イベント", type: :request do
     end
   end
 
+  describe "GET /events/:id の残りの席" do
+    it "キャンセルされた予約の席は、残りの席に戻る" do
+      event = create(:event, capacity: 20)
+      create(:reservation, event: event, quantity: 4, status: "canceled")
+
+      get event_path(event)
+
+      expect(response.body).to include("残り 20席")
+    end
+  end
+
   describe "POST /events" do
     let(:valid_params) do
       { event: attributes_for(:event, title: "梅林ガイドツアー", starts_at: "2026-12-06 13:00") }

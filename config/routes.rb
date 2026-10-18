@@ -18,5 +18,6 @@ Rails.application.routes.draw do
 
   resources :reservations, only: %i[show] do
     resource :payment, only: %i[create]
+    member { patch :cancel }
   end
 end
