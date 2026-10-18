@@ -19,12 +19,12 @@ class Reservation < ApplicationRecord
   validate :quantity_within_remaining_seats
   validate :event_accepting_reservations, on: :create
 
-  before_create :confirm_if_free
+  before_create :copy_price_from_event, :confirm_if_free
   after_create_commit :send_payment_request_mail, if: :pending?
   after_update_commit :send_confirmed_mail, if: -> { saved_change_to_status?(to: "confirmed") }
 
   def total_price
-    Money.new(event.price) * quantity
+    Money.new(price) * quantity
   end
 
   private
@@ -44,8 +44,12 @@ class Reservation < ApplicationRecord
     errors.add(:base, :reservation_closed) if event.starts_at <= Time.current
   end
 
+  def copy_price_from_event
+    self.price ||= event&.price
+  end
+
   def confirm_if_free
-    self.status = :confirmed if event.price.zero?
+    self.status = :confirmed if price.zero?
   end
 
   def send_payment_request_mail
