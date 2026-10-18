@@ -8,13 +8,12 @@ RSpec.describe "依存のルール" do
     patterns.flat_map { |pattern| Dir[File.join(ROOT, pattern)] }.sort
   end
 
-  # パターンに当てはまる行を「ファイル:行番号: 中身」の一覧にする
+  # パターンに当てはまる行を「ファイル:行番号: 中身」の一覧にする。許すものは、行から取り除いてから調べる
   def violations(paths, pattern, allowed: [])
     paths.flat_map do |path|
       File.readlines(path).each_with_index.filter_map do |line, index|
         next if line.strip.start_with?("#")
-        next unless line.match?(pattern)
-        next if allowed.any? { |allow| line.match?(allow) }
+        next unless allowed.reduce(line) { |rest, allow| rest.gsub(allow, "") }.match?(pattern)
 
         "#{path.delete_prefix("#{ROOT}/")}:#{index + 1}: #{line.strip}"
       end
