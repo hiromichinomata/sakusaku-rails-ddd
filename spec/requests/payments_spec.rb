@@ -44,7 +44,7 @@ RSpec.describe "お支払い", type: :request do
     end
 
     it "予約から15分を過ぎると、支払えずに期限切れになる" do
-      reservation.update!(created_at: 16.minutes.ago)
+      reservation.update!(created_at: 16.minutes.ago, payment_due_at: 1.minute.ago)
 
       post reservation_payment_path(reservation), params: { token: "tok_visa" }
 

@@ -6,11 +6,11 @@ module Ticketing
       @reservations = reservations
     end
 
-    def call(inventory:, applicant:, count:, price:, now:)
+    def call(inventory:, applicant:, count:, price:, now:, payment_window: Reservation::PAYMENT_WINDOW)
       inventory.reserve(count)
       reservation = @reservations.add(
         Reservation.apply(event_id: inventory.event_id, applicant: applicant, count: count, price: price,
-                          reserved_at: now)
+                          reserved_at: now, payment_window: payment_window)
       )
       DomainEvents.publish(ReservationCreated.new(reservation_id: reservation.id, event_id: inventory.event_id,
                                                   status: reservation.status, occurred_at: now))

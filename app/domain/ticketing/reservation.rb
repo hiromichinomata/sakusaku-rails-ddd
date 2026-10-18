@@ -22,36 +22,31 @@ module Ticketing
     end
 
     STATUS_NAMES = { pending: "仮予約", confirmed: "予約確定", canceled: "キャンセル済み", expired: "期限切れ" }.freeze
-    PAYMENT_WINDOW = 15 * 60 # 支払い期限は、仮予約の作成から15分後（秒）
+    PAYMENT_WINDOW = 15 * 60 # 支払い期限は、ふつうは仮予約の作成から15分後（秒）
 
-    attr_reader :id, :event_id, :applicant, :count, :price, :status, :reserved_at
+    attr_reader :id, :event_id, :applicant, :count, :price, :status, :reserved_at, :payment_deadline
 
-    def self.payment_deadline_for(reserved_at)
-      reserved_at + PAYMENT_WINDOW
-    end
-
-    # 申込から、新しい予約を作る。有料なら仮予約（R-05）、無料なら予約確定（R-06）
-    def self.apply(event_id:, applicant:, count:, price:, reserved_at:)
+    # 申込から、新しい予約を作る。有料なら仮予約（R-05）、無料なら予約確定（R-06）。
+    # payment_window は、支払い期限までの時間（抽選の当選者は24時間。R-13）
+    def self.apply(event_id:, applicant:, count:, price:, reserved_at:, payment_window: PAYMENT_WINDOW)
       new(event_id: event_id, applicant: applicant, count: count, price: price, reserved_at: reserved_at,
-          status: price.zero? ? :confirmed : :pending)
+          payment_deadline: reserved_at + payment_window, status: price.zero? ? :confirmed : :pending)
     end
 
-    def initialize(event_id:, applicant:, count:, price:, reserved_at: nil, id: nil, status: :pending)
+    def initialize(event_id:, applicant:, count:, price:, reserved_at: nil, payment_deadline: nil, id: nil,
+                   status: :pending)
       @id = id
       @event_id = event_id
       @applicant = applicant
       @count = count
       @price = price
       @reserved_at = reserved_at
+      @payment_deadline = payment_deadline || (reserved_at && reserved_at + PAYMENT_WINDOW)
       @status = status
     end
 
     def total_price
       price * count.to_i
-    end
-
-    def payment_deadline
-      self.class.payment_deadline_for(reserved_at)
     end
 
     def status_name

@@ -9,7 +9,8 @@ RSpec.describe Ticketing::ReservationRepository do
       event_id: event.id,
       applicant: Ticketing::Applicant.new(name: "初花", email: email),
       count: Ticketing::ReservationCount.new(count),
-      price: Money.new(1500)
+      price: Money.new(1500),
+      reserved_at: Time.current
     )
   end
 

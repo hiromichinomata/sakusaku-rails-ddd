@@ -9,6 +9,7 @@ module Ticketing
     end
 
     Result = Data.define(:winners, :losers)
+    PAYMENT_WINDOW = 24 * 60 * 60 # 当選者の支払い期限は、抽選から24時間後（秒）
 
     def initialize(seats:)
       @seats = seats

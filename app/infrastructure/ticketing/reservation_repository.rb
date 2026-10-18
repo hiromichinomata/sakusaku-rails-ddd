@@ -36,7 +36,8 @@ module Ticketing
         quantity: reservation.count.to_i,
         price: reservation.price.yen,
         status: reservation.status.to_s,
-        created_at: reservation.reserved_at
+        created_at: reservation.reserved_at,
+        payment_due_at: reservation.payment_deadline
       )
     end
 
@@ -48,7 +49,8 @@ module Ticketing
         count: ReservationCount.new(record.quantity),
         price: Money.new(record.price),
         status: record.status.to_sym,
-        reserved_at: record.created_at
+        reserved_at: record.created_at,
+        payment_deadline: record.payment_due_at
       )
     end
   end

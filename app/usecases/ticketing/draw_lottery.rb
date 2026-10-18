@@ -17,7 +17,7 @@ module Ticketing
         price = @sales_infos.find(event_id).price
         result.winners.each do |entry|
           reservation = @allocate.call(inventory: inventory, applicant: entry.applicant, count: entry.count,
-                                       price: price, now: now)
+                                       price: price, now: now, payment_window: Lottery::PAYMENT_WINDOW)
           @entries.mark_won(entry, reservation_id: reservation.id)
         end
         @entries.mark_lost(result.losers)

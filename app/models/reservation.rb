@@ -15,6 +15,6 @@ class Reservation < ApplicationRecord
   end
 
   def payment_deadline
-    Ticketing::Reservation.payment_deadline_for(created_at)
+    payment_due_at
   end
 end
