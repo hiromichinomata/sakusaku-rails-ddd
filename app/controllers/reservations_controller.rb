@@ -5,19 +5,13 @@ class ReservationsController < ApplicationController
 
   def create
     @event = Event.find(params[:event_id])
-    @reservation = @event.reservations.build(reservation_params)
-    return render_event_page unless @reservation.valid?
+    @form = ReservationForm.new(reservation_params)
+    return render_event_page unless @form.valid?
 
-    reservation = Ticketing::ReserveSeats.new.call(
-      event_id: @event.id, name: @reservation.name, email: @reservation.email, count: @reservation.quantity
-    )
-    notice = reservation.status == :confirmed ? "予約が確定しました。" : "仮予約しました。15分以内にお支払いください。"
-    redirect_to reservation_path(reservation.id), notice: notice
-  rescue Ticketing::Inventory::NotEnoughSeats => e
-    @reservation.errors.add(:quantity, :exceeds_remaining_seats, count: e.remaining_seats)
-    render_event_page
+    reservation = Ticketing::ReserveSeats.new.call(event_id: @event.id, **@form.to_h)
+    redirect_to reservation_path(reservation.id), notice: reserved_notice(reservation)
   rescue Ticketing::BusinessRuleViolation => e
-    @reservation.errors.add(:base, e.message)
+    @form.add_business_error(e)
     render_event_page
   end
 
@@ -53,5 +47,9 @@ class ReservationsController < ApplicationController
 
   def render_event_page
     render "events/show", status: :unprocessable_content
+  end
+
+  def reserved_notice(reservation)
+    reservation.status == :confirmed ? "予約が確定しました。" : "仮予約しました。15分以内にお支払いください。"
   end
 end

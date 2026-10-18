@@ -29,6 +29,20 @@ ja:
               already_reserved: "では、すでに予約があります"
             quantity:
               exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
+  activemodel:
+    attributes:
+      reservation_form:
+        name: お名前
+        email: メールアドレス
+        quantity: 人数
+    errors:
+      models:
+        reservation_form:
+          attributes:
+            email:
+              already_reserved: "では、すでに予約があります"
+            quantity:
+              exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
   reservation_statuses:
     pending: 仮予約（お支払い待ち）
     confirmed: 予約確定

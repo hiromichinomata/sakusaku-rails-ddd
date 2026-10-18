@@ -15,8 +15,8 @@
 
 <h2>予約する</h2>
 
-<%= form_with model: [@event, @reservation] do |form| %>
-  <%= render "shared/errors", record: @reservation %>
+<%= form_with model: @form, scope: :reservation, url: event_reservations_path(@event) do |form| %>
+  <%= render "shared/errors", record: @form %>
 
   <p>
     <%= form.label :name %>
@@ -28,7 +28,7 @@
   </p>
   <p>
     <%= form.label :quantity %>
-    <%= form.number_field :quantity, min: 1, value: @reservation.quantity || 1 %>人
+    <%= form.number_field :quantity, min: 1 %>人
   </p>
 
   <%= form.submit "予約する" %>

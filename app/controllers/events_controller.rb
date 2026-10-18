@@ -5,7 +5,7 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.find(params[:id])
-    @reservation = @event.reservations.build
+    @form = ReservationForm.new
   end
 
   def new
