@@ -6,8 +6,9 @@ RSpec.describe "お支払い", type: :request do
 
   describe "POST /reservations/:reservation_id/payment" do
     it "支払いが成功すると、予約が確定して確定メールを送る" do
-      expect { post reservation_payment_path(reservation), params: { token: "tok_visa" } }
-        .to have_enqueued_mail(ReservationMailer, :confirmed)
+      perform_enqueued_jobs { post reservation_payment_path(reservation), params: { token: "tok_visa" } }
+
+      expect(delivered_subjects).to eq([ "【うめチケット】予約が確定しました：梅酒づくりワークショップ" ])
 
       expect(reservation.reload).to be_confirmed
       expect(reservation.payment.amount).to eq(3000)

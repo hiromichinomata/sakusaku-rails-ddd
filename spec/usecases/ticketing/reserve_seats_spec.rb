@@ -18,6 +18,20 @@ RSpec.describe Ticketing::ReserveSeats do
     expect(inventories.find(event.id).reserved_count).to eq(2)
   end
 
+  it "予約が作られたことを、ドメインイベントで知らせる" do
+    received = []
+    subscription = ActiveSupport::Notifications.subscribe(Ticketing::ReservationCreated.event_name) do |*, payload|
+      received << payload[:event]
+    end
+
+    reservation = reserve(count: 2)
+
+    expect(received.map(&:reservation_id)).to eq([ reservation.id ])
+    expect(received.first.status).to eq(:pending)
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscription)
+  end
+
   it "無料のイベントは、予約確定になる" do
     event.update!(price: 0)
 

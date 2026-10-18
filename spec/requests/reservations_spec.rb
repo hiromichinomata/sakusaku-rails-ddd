@@ -10,8 +10,11 @@ RSpec.describe "予約", type: :request do
 
   describe "POST /events/:event_id/reservations" do
     it "仮予約を作成して、お支払いのお願いをメールで送る" do
-      expect { reserve(quantity: 2) }.to change(Reservation, :count).by(1)
-        .and have_enqueued_mail(ReservationMailer, :payment_request)
+      perform_enqueued_jobs do
+        expect { reserve(quantity: 2) }.to change(Reservation, :count).by(1)
+      end
+
+      expect(delivered_subjects).to eq([ "【うめチケット】お支払いのお願い：梅酒づくりワークショップ" ])
 
       reservation = Reservation.last
       expect(reservation).to be_pending
@@ -20,12 +23,13 @@ RSpec.describe "予約", type: :request do
       expect(response.body).to include("仮予約しました。15分以内にお支払いください。")
     end
 
-    it "無料のイベントは、その場で予約が確定する" do
+    it "無料のイベントは、その場で予約が確定して、確定のメールを送る" do
       event.update!(price: 0)
 
-      expect { reserve(quantity: 2) }.not_to have_enqueued_mail(ReservationMailer, :payment_request)
+      perform_enqueued_jobs { reserve(quantity: 2) }
 
       expect(Reservation.last).to be_confirmed
+      expect(delivered_subjects).to eq([ "【うめチケット】予約が確定しました：梅酒づくりワークショップ" ])
     end
 
     it "入力に誤りがあれば、予約せずにエラーを表示する" do
