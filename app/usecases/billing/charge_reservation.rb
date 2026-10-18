@@ -13,6 +13,7 @@ module Billing
       charge_id = @gateway.charge(amount: amount, token: token,
                                   idempotency_key: "charge-reservation-#{reservation_id}-#{token}")
       Payment.create!(reservation_id: reservation_id, amount: amount.yen, charge_id: charge_id)
+      Rails.event.notify("billing.charged", reservation_id: reservation_id, charge_id: charge_id, amount: amount.yen)
       charge_id
     end
   end

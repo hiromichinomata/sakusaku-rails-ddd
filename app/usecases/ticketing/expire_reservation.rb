@@ -12,6 +12,8 @@ module Ticketing
         reservation.expire(now: now)
         @reservations.save(reservation)
         release_seats(reservation)
+        DomainEvents.publish(ReservationExpired.new(reservation_id: reservation.id, event_id: reservation.event_id,
+                                                    occurred_at: now))
         reservation
       end
     end

@@ -4,8 +4,10 @@ module Billing
   class RefundPaymentJob < ApplicationJob
     queue_as :default
 
-    retry_on GatewayUnavailable, wait: :polynomially_longer, attempts: 5 do |job, _error|
-      Payment.find_by!(reservation_id: job.arguments.first).update!(status: :refund_failed)
+    retry_on GatewayUnavailable, wait: :polynomially_longer, attempts: 5 do |job, error|
+      reservation_id = job.arguments.first
+      Payment.find_by!(reservation_id: reservation_id).update!(status: :refund_failed)
+      Rails.event.notify("billing.refund_failed", reservation_id: reservation_id, error: error.message)
     end
 
     def perform(reservation_id, amount_yen)
@@ -16,6 +18,8 @@ module Billing
       refund_id = Billing.gateway.refund(charge_id: payment.charge_id, amount: Money.new(amount_yen),
                                          idempotency_key: "refund-reservation-#{reservation_id}")
       payment.update!(status: :refunded, refund_id: refund_id)
+      Rails.event.notify("billing.refunded", reservation_id: reservation_id, charge_id: payment.charge_id,
+                                             refund_id: refund_id, amount: amount_yen)
     end
   end
 end
