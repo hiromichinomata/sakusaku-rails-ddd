@@ -4,6 +4,10 @@ Rails.application.configure do
   # 決済は、手元で動く偽物の窓口を使う（Billing.gateway）
   config.x.payment_gateway = :fake
 
+  # ジョブは、本番と同じ Solid Queue で動かす（bin/jobs、または SOLID_QUEUE_IN_PUMA=1 bin/rails server）
+  config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
