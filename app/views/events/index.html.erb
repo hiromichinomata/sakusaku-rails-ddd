@@ -4,7 +4,7 @@
   <% @events.each do |event| %>
     <li>
       <%= link_to event.title, event_path(event) %>
-      （<%= event.starts_at.strftime("%Y年%-m月%-d日 %H:%M") %>）
+      （<%= event.starts_at.strftime("%Y年%-m月%-d日 %H:%M") %>・残り <%= event.remaining_seats %>席）
     </li>
   <% end %>
 </ul>

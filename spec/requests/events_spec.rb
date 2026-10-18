@@ -12,6 +12,26 @@ RSpec.describe "イベント", type: :request do
     end
   end
 
+  describe "GET /events の残りの席" do
+    it "イベントごとの残りの席を表示する" do
+      create(:event, title: "梅酒づくりワークショップ", capacity: 20).ticket_inventory.update!(reserved_count: 5)
+
+      get events_path
+
+      expect(response.body).to include("残り 15席")
+    end
+
+    it "イベントが増えても、一覧の表示で流れる SQL の数は変わらない" do
+      create_list(:event, 2)
+      with_two_events = count_queries { get events_path }
+
+      create_list(:event, 3)
+      with_five_events = count_queries { get events_path }
+
+      expect(with_five_events).to eq(with_two_events)
+    end
+  end
+
   describe "GET /events/:id" do
     it "イベントの詳細を表示する" do
       event = create(:event, venue: "うめ公民館", starts_at: Time.zone.local(2026, 11, 15, 10, 0),
