@@ -30,7 +30,7 @@ ja:
             quantity:
               exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
   reservation_statuses:
-    pending: お支払い待ち
+    pending: 仮予約（お支払い待ち）
     confirmed: 予約確定
     canceled: キャンセル済み
     expired: 期限切れ
