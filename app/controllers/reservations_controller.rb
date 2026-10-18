@@ -17,26 +17,22 @@ class ReservationsController < ApplicationController
 
   def cancel
     @reservation = Reservation.find(params[:id])
-
-    if @reservation.canceled? || @reservation.expired?
-      redirect_to @reservation, alert: "この予約はキャンセルできません。"
-      return
-    end
-
     payment = @reservation.payment
-    if payment.present? && @reservation.event.starts_at - 3.days > Time.current
+    refund = payment.present? && @reservation.event.starts_at - 3.days > Time.current
+
+    Ticketing::CancelReservation.new.call(reservation_id: @reservation.id)
+
+    if refund
       refund_id = Billing::PaymentGateway.refund(charge_id: payment.charge_id, amount: payment.amount)
       payment.update!(status: :refunded, refund_id: refund_id)
       message = "キャンセルしました。#{Money.new(payment.amount)}を返金します。"
     else
       message = "キャンセルしました。"
     end
-    Reservation.transaction do
-      @reservation.update!(status: :canceled)
-      Ticketing::ReleaseSeats.new.call(event_id: @reservation.event_id, count: @reservation.quantity)
-    end
 
     redirect_to @reservation, notice: message
+  rescue Ticketing::BusinessRuleViolation => e
+    redirect_to @reservation, alert: e.message
   end
 
   private

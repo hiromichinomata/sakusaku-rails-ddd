@@ -35,7 +35,8 @@ module Ticketing
         email: reservation.applicant.email.to_s,
         quantity: reservation.count.to_i,
         price: reservation.price.yen,
-        status: reservation.status.to_s
+        status: reservation.status.to_s,
+        created_at: reservation.reserved_at
       )
     end
 
@@ -46,7 +47,8 @@ module Ticketing
         applicant: Applicant.new(name: record.name, email: record.email),
         count: ReservationCount.new(record.quantity),
         price: Money.new(record.price),
-        status: record.status.to_sym
+        status: record.status.to_sym,
+        reserved_at: record.created_at
       )
     end
   end

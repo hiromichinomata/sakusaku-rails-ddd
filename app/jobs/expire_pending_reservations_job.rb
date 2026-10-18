@@ -1,13 +1,11 @@
 class ExpirePendingReservationsJob < ApplicationJob
   queue_as :default
 
-  # お支払いの期限（予約から15分）を過ぎた仮予約を、期限切れにして席を戻す
-  def perform
-    Reservation.pending.where(created_at: ...15.minutes.ago).find_each do |reservation|
-      Reservation.transaction do
-        reservation.update!(status: :expired)
-        Ticketing::ReleaseSeats.new.call(event_id: reservation.event_id, count: reservation.quantity)
-      end
+  # 支払い期限を過ぎた仮予約を、1件ずつ期限切れにする
+  def perform(now: Time.current)
+    deadline_passed = now - Ticketing::Reservation::PAYMENT_WINDOW
+    Reservation.pending.where(created_at: ...deadline_passed).find_each do |record|
+      Ticketing::ExpireReservation.new.call(reservation_id: record.id, now: now)
     end
   end
 end
