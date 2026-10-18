@@ -40,5 +40,16 @@ RSpec.describe "キャンセル", type: :request do
 
       expect(event.reservations.active.count).to eq(1)
     end
+
+    it "ちょうど開催3日前は、画面の案内と実際の返金が一致する" do
+      travel_to Time.zone.local(2026, 11, 12, 10, 0) do
+        get reservation_path(reservation)
+        announced_refund = response.body.include?("全額を返金します")
+
+        patch cancel_reservation_path(reservation)
+
+        expect(reservation.reload.payment.refunded?).to eq(announced_refund)
+      end
+    end
   end
 end
