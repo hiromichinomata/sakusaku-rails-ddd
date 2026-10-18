@@ -1,12 +1,12 @@
 module Ticketing
-  # 仮予約の支払い。決済サービスで支払い金額を受け取り、予約確定にする
+  # 仮予約の支払い。決済のコンテキストに支払いを頼み、予約確定にする
   class PayForReservation
     # already_paid は、すでに支払いが済んでいて、今回は何もしなかったとき true
     Result = Data.define(:reservation, :already_paid)
 
-    def initialize(reservations: ReservationRepository.new, gateway: Billing.gateway)
+    def initialize(reservations: ReservationRepository.new, billing: Billing::ChargeReservation.new)
       @reservations = reservations
-      @gateway = gateway
+      @billing = billing
     end
 
     def call(reservation_id:, token:, now: Time.current)
@@ -17,14 +17,10 @@ module Ticketing
       expire_if_deadline_passed(reservation, now)
       reservation.ensure_payable!(now: now)
 
-      # 決済サービスの呼び出しは、トランザクションの外で。同じ冪等キーなら、何度頼んでも1回分
-      charge_id = @gateway.charge(amount: reservation.total_price, token: token,
-                                  idempotency_key: "charge-reservation-#{reservation.id}-#{token}")
+      # 決済のコンテキストに頼む（トランザクションの外）。やり直しても、受け取るのは1回分
+      @billing.call(reservation_id: reservation.id, amount: reservation.total_price, token: token)
 
-      confirmed = ApplicationRecord.transaction do
-        Payment.create!(reservation_id: reservation.id, amount: reservation.total_price.yen, charge_id: charge_id)
-        ConfirmReservation.new(reservations: @reservations).call(reservation_id: reservation.id, now: now)
-      end
+      confirmed = ConfirmReservation.new(reservations: @reservations).call(reservation_id: reservation.id, now: now)
       Result.new(reservation: confirmed, already_paid: false)
     end
 

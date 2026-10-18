@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Ticketing::PayForReservation do
   let(:event) { create(:event, price: 1500) }
   let(:gateway) { Billing::FakePaymentGateway.new }
-  let(:usecase) { described_class.new(gateway: gateway) }
+  let(:usecase) { described_class.new(billing: Billing::ChargeReservation.new(gateway: gateway)) }
   let!(:reservation) do
     Ticketing::ReserveSeats.new.call(event_id: event.id, name: "初花", email: "hatsuka@example.com", count: 2)
   end
@@ -28,6 +28,26 @@ RSpec.describe Ticketing::PayForReservation do
     expect(second.already_paid).to be(true)
     expect(gateway).to have_received(:charge).once
     expect(Payment.where(reservation_id: reservation.id).count).to eq(1)
+  end
+
+  it "支払いのあとで予約確定の保存に失敗しても、もう一度支払えば、受け取るのは1回だけ" do
+    allow(gateway).to receive(:charge).and_call_original
+    reservations = Ticketing::ReservationRepository.new
+    failed_once = false
+    allow(reservations).to receive(:save).and_wrap_original do |original, *args|
+      next original.call(*args) if failed_once
+
+      failed_once = true
+      raise ActiveRecord::ConnectionNotEstablished, "保存の途中でデータベースが切れた"
+    end
+    retrying = described_class.new(reservations: reservations, billing: Billing::ChargeReservation.new(gateway: gateway))
+
+    expect { retrying.call(reservation_id: reservation.id, token: "tok_visa") }
+      .to raise_error(ActiveRecord::ConnectionNotEstablished)
+    result = retrying.call(reservation_id: reservation.id, token: "tok_visa")
+
+    expect(result.reservation.status).to eq(:confirmed)
+    expect(gateway).to have_received(:charge).once
   end
 
   it "決済サービスにつながらなければ、何も記録せず、仮予約のまま" do
