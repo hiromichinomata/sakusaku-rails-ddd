@@ -16,6 +16,7 @@ module Ticketing
       ApplicationRecord.transaction do
         sales_info = @sales_infos.find(event_id)
         sales_info.sales_period.ensure_open!(now)
+        sales_info.policy.ensure_count_allowed!(count)
         @double_booking.ensure_not_double_booked!(event_id: event_id, email: applicant.email)
 
         inventory = @inventories.find(event_id, lock: true)

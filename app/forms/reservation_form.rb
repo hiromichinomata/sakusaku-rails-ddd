@@ -22,6 +22,8 @@ class ReservationForm
     case error
     when Ticketing::Inventory::NotEnoughSeats
       errors.add(:quantity, :exceeds_remaining_seats, count: error.remaining_seats)
+    when Ticketing::ReservationPolicy::TooManyAttendees
+      errors.add(:quantity, :less_than_or_equal_to, count: error.max_count)
     when Ticketing::Reservation::AlreadyReserved
       errors.add(:email, :already_reserved)
     else

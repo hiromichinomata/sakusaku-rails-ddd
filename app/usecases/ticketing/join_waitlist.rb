@@ -7,14 +7,17 @@ module Ticketing
       end
     end
 
-    def initialize(entries: WaitlistEntryRepository.new, inventories: InventoryRepository.new)
+    def initialize(entries: WaitlistEntryRepository.new, inventories: InventoryRepository.new,
+                   sales_infos: SalesInfoReader.new)
       @entries = entries
       @inventories = inventories
+      @sales_infos = sales_infos
     end
 
     def call(event_id:, name:, email:, count:)
       applicant = Applicant.new(name: name, email: email)
       count = ReservationCount.new(count)
+      @sales_infos.find(event_id).policy.ensure_count_allowed!(count)
       inventory = @inventories.find(event_id)
       inventory.ensure_first_come!
       raise SeatsAvailable if count.to_i <= inventory.remaining_seats

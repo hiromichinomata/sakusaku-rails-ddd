@@ -40,6 +40,15 @@ RSpec.describe "予約のライフサイクルのユースケース" do
       expect(inventories.find(event.id).reserved_count).to eq(0)
     end
 
+    it "主催者が返金期限を24時間前と決めたイベントは、48時間前のキャンセルでも返金する" do
+      event.update!(organizer: create(:organizer, refund_hours_before_start: 24))
+      Ticketing::PayForReservation.new.call(reservation_id: reservation.id, token: "tok_visa")
+
+      result = described_class.new.call(reservation_id: reservation.id, now: event.starts_at - 48.hours)
+
+      expect(result.refund_amount).to eq(Money.new(4500))
+    end
+
     it "2回キャンセルしても、席は2回戻らない" do
       described_class.new.call(reservation_id: reservation.id)
 

@@ -16,12 +16,19 @@ RSpec.describe "予約の API", type: :request do
   end
 
   it "入力の形が誤っていれば 422 と項目ごとのエラーを返す" do
-    reserve(name: "", quantity: 5)
+    reserve(name: "", quantity: 11)
 
     expect(response).to have_http_status(:unprocessable_content)
     expect(response.parsed_body["errors"]).to eq(
-      "name" => [ "お名前を入力してください" ], "quantity" => [ "人数は4以下の値にしてください" ]
+      "name" => [ "お名前を入力してください" ], "quantity" => [ "人数は10以下の値にしてください" ]
     )
+  end
+
+  it "主催者が決めた人数の上限を超えたら 409 を返す（入力の形ではなく、業務のルール）" do
+    reserve(quantity: 5)
+
+    expect(response).to have_http_status(:conflict)
+    expect(response.parsed_body["error"]).to eq("code" => "too_many_attendees", "message" => "1回の予約は4人までです")
   end
 
   it "残席が足りなければ 409 とエラーコードを返す" do

@@ -71,7 +71,18 @@ RSpec.describe Ticketing::ReserveSeats do
     expect { reserve(now: event.starts_at) }.to raise_error(Ticketing::SalesPeriod::Closed)
   end
 
-  it "人数が1〜4人でなければ、申し込めない" do
-    expect { reserve(count: 5) }.to raise_error(ArgumentError, "人数は1〜4人で指定してください: 5")
+  it "主催者が決めていなければ、1回4人まで" do
+    expect { reserve(count: 5) }.to raise_error(Ticketing::ReservationPolicy::TooManyAttendees, "1回の予約は4人までです")
+  end
+
+  it "主催者が6人までと決めたイベントは、5人で申し込める" do
+    event.update!(capacity: 10, organizer: create(:organizer, max_attendees_per_reservation: 6))
+    event.ticket_inventory.update!(capacity: 10)
+
+    expect(reserve(count: 5).count.to_i).to eq(5)
+  end
+
+  it "サービス全体の上限（10人）を超える人数は、どのイベントでも作れない" do
+    expect { reserve(count: 11) }.to raise_error(ArgumentError, "人数は1〜10人で指定してください: 11")
   end
 end

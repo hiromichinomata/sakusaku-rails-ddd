@@ -1,4 +1,5 @@
 class Event < ApplicationRecord
+  belongs_to :organizer, optional: true
   has_many :reservations, dependent: :destroy
   has_one :ticket_inventory, dependent: :destroy
 

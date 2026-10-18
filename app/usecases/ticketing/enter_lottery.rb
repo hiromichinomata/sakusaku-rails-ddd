@@ -17,7 +17,9 @@ module Ticketing
     def call(event_id:, name:, email:, count:, now: Time.current)
       applicant = Applicant.new(name: name, email: email)
       count = ReservationCount.new(count)
-      @sales_infos.find(event_id).sales_period.ensure_open!(now)
+      sales_info = @sales_infos.find(event_id)
+      sales_info.sales_period.ensure_open!(now)
+      sales_info.policy.ensure_count_allowed!(count)
       raise ArgumentError, "抽選のイベントではありません" unless @inventories.find(event_id).lottery?
 
       @entries.add(event_id: event_id, applicant: applicant, count: count)

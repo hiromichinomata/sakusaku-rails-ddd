@@ -9,11 +9,11 @@ RSpec.describe ReservationForm do
   end
 
   it "入力の形の誤りを、項目ごとのメッセージにする" do
-    form = described_class.new(name: "", email: "hatsuka.example.com", quantity: "5")
+    form = described_class.new(name: "", email: "hatsuka.example.com", quantity: "11")
 
     expect(form).not_to be_valid
     expect(form.errors.full_messages).to eq(
-      [ "お名前を入力してください", "メールアドレスは不正な値です", "人数は4以下の値にしてください" ]
+      [ "お名前を入力してください", "メールアドレスは不正な値です", "人数は10以下の値にしてください" ]
     )
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_160347) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_160544) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160347) do
     t.integer "price", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "organizer_id"
+    t.index ["organizer_id"], name: "index_events_on_organizer_id"
   end
 
   create_table "idempotency_keys", force: :cascade do |t|
@@ -46,6 +48,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160347) do
     t.datetime "updated_at", null: false
     t.index ["event_id", "email"], name: "index_lottery_entries_on_event_id_and_email", unique: true
     t.index ["event_id"], name: "index_lottery_entries_on_event_id"
+  end
+
+  create_table "organizers", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "max_attendees_per_reservation", default: 4, null: false
+    t.integer "refund_hours_before_start", default: 72, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "payments", force: :cascade do |t|
@@ -96,6 +106,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160347) do
     t.index ["event_id"], name: "index_waitlist_entries_on_event_id"
   end
 
+  add_foreign_key "events", "organizers"
   add_foreign_key "lottery_entries", "events"
   add_foreign_key "payments", "reservations"
   add_foreign_key "reservations", "events"
