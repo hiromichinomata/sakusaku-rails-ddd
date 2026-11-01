@@ -4,6 +4,8 @@
 
 最初は普通の Rails アプリとして作り、業務ルールが増えて Fat Model になったところで、DDD の考え方で設計し直していきます。章ごとにタグを付けてあるので、本と同じ順にコードの変化をたどれます。
 
+本の本文は [`book/`](book/README.md) にあります。
+
 ## 必要なもの
 
 | | バージョン |
@@ -84,6 +86,7 @@ git diff --stat ch17 ch18      # 第18章で変えたファイル
 | `docs/domain/` | 用語集・業務ルール一覧・サブドメイン・コンテキストマップ |
 | `docs/adr/` | 設計判断の記録（ADR） |
 | `docs/architecture.md`・`docs/testing.md`・`docs/runbook.md` | 層の構成・テストの方針・運用の手順 |
+| `book/` | 本の本文（章ごとの Markdown） |
 
 ## 注意
 
