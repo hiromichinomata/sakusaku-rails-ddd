@@ -15,20 +15,6 @@ ja:
         name: お名前
         email: メールアドレス
         quantity: 人数
-    errors:
-      models:
-        event:
-          attributes:
-            capacity:
-              below_reserved: "は予約済みの人数（%{count}人）より少なくできません"
-        reservation:
-          attributes:
-            base:
-              reservation_closed: "このイベントの受付は終了しました"
-            email:
-              already_reserved: "では、すでに予約があります"
-            quantity:
-              exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
   activemodel:
     attributes:
       reservation_form:
