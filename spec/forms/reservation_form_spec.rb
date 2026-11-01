@@ -23,5 +23,22 @@ RSpec.describe ReservationForm do
     form.add_business_error(Ticketing::Inventory::NotEnoughSeats.new(2))
 
     expect(form.errors.full_messages).to eq([ "人数が残りの席数（2席）を超えています" ])
+    expect(form).to be_business_error
+  end
+
+  it "人数の上限は、入力の範囲（10人）とは別のメッセージにする" do
+    form = described_class.new(name: "初花", email: "hatsuka@example.com", quantity: 5)
+
+    form.add_business_error(Ticketing::ReservationPolicy::TooManyAttendees.new(4))
+
+    expect(form.errors.full_messages).to eq([ "人数は1回の予約で4人までです" ])
+  end
+
+  it "入力の形の誤りは、業務の誤りではない" do
+    form = described_class.new(name: "", email: "hatsuka@example.com", quantity: 1)
+
+    form.valid?
+
+    expect(form).not_to be_business_error
   end
 end

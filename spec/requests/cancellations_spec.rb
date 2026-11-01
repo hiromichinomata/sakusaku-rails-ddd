@@ -62,4 +62,25 @@ RSpec.describe "キャンセル", type: :request do
       end
     end
   end
+
+  describe "GET /reservations/:id" do
+    it "返金の案内は、主催者が決めた返金期限を示す" do
+      event.update!(organizer: create(:organizer, refund_hours_before_start: 24))
+
+      travel_to Time.zone.local(2026, 11, 13, 12, 0) do
+        get reservation_path(reservation)
+      end
+
+      expect(response.body).to include("全額を返金します（返金期限：2026年11月14日 10:00まで）")
+      expect(response.body).not_to include("3日前")
+    end
+
+    it "返金期限を過ぎたら、その期限を示して返金しないと伝える" do
+      travel_to Time.zone.local(2026, 11, 13, 12, 0) do
+        get reservation_path(reservation)
+      end
+
+      expect(response.body).to include("返金期限（2026年11月12日 10:00）を過ぎたため、キャンセルしても返金はありません。")
+    end
+  end
 end

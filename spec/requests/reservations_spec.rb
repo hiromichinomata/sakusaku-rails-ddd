@@ -45,7 +45,17 @@ RSpec.describe "予約", type: :request do
     it "1回の予約は4人まで" do
       expect { reserve(quantity: 5) }.not_to change(Reservation, :count)
 
-      expect(response.body).to include("人数は4以下の値にしてください")
+      expect(response.body).to include("予約できませんでした。")
+      expect(response.body).to include("人数は1回の予約で4人までです")
+      expect(response.body).not_to include("入力エラー")
+    end
+
+    it "主催者が決めた上限で断る" do
+      event.update!(organizer: create(:organizer, max_attendees_per_reservation: 6))
+
+      expect { reserve(quantity: 7) }.not_to change(Reservation, :count)
+
+      expect(response.body).to include("人数は1回の予約で6人までです")
     end
 
     it "同じメールアドレスで、同じイベントを二重に予約できない" do
