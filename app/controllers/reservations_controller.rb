@@ -1,8 +1,8 @@
 class ReservationsController < ApplicationController
   def show
     @reservation = Reservation.find(params[:id])
-    deadline = Ticketing::SalesInfoReader.new.find(@reservation.event_id).cancellation_deadline
-    @refundable = @reservation.confirmed? && deadline.refundable_at?(Time.current)
+    @cancellation_deadline = Ticketing::SalesInfoReader.new.find(@reservation.event_id).cancellation_deadline
+    @refundable = @reservation.confirmed? && @cancellation_deadline.refundable_at?(Time.current)
   end
 
   def create

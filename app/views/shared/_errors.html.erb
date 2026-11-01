@@ -1,6 +1,6 @@
 <% if record.errors.any? %>
   <div class="errors">
-    <p><%= record.errors.count %>件の入力エラーがあります。</p>
+    <p><%= local_assigns[:heading] || "#{record.errors.count}件の入力エラーがあります。" %></p>
     <ul>
       <% record.errors.full_messages.each do |message| %>
         <li><%= message %></li>

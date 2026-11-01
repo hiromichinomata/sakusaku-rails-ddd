@@ -16,7 +16,7 @@
 <h2>予約する</h2>
 
 <%= form_with model: @form, scope: :reservation, url: event_reservations_path(@event) do |form| %>
-  <%= render "shared/errors", record: @form %>
+  <%= render "shared/errors", record: @form, heading: ("予約できませんでした。" if @form.business_error?) %>
 
   <p>
     <%= form.label :name %>

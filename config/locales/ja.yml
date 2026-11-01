@@ -43,6 +43,7 @@ ja:
               already_reserved: "では、すでに予約があります"
             quantity:
               exceeds_remaining_seats: "が残りの席数（%{count}席）を超えています"
+              too_many_attendees: "は1回の予約で%{count}人までです"
   reservation_statuses:
     pending: 仮予約（お支払い待ち）
     confirmed: 予約確定

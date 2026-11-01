@@ -30,10 +30,11 @@
 
 <% if @reservation.pending? || @reservation.confirmed? %>
   <h2>キャンセル</h2>
+  <% refund_until = @cancellation_deadline.refund_until.strftime("%Y年%-m月%-d日 %H:%M") %>
   <% if @refundable %>
-    <p>今キャンセルすると、お支払いの全額を返金します。</p>
+    <p>今キャンセルすると、お支払いの全額を返金します（返金期限：<%= refund_until %>まで）。</p>
   <% elsif @reservation.confirmed? %>
-    <p>開催3日前を過ぎたため、キャンセルしても返金はありません。</p>
+    <p>返金期限（<%= refund_until %>）を過ぎたため、キャンセルしても返金はありません。</p>
   <% end %>
   <%= button_to "キャンセルする", cancel_reservation_path(@reservation), method: :patch %>
 <% end %>
