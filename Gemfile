@@ -70,5 +70,5 @@ end
 
 group :test do
   # Stub HTTP requests to external services [https://github.com/bblimke/webmock]
-  gem "webmock", "~> 3.34"
+  gem "webmock", "~> 3.35"
 end
